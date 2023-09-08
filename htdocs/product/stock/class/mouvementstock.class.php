@@ -168,7 +168,8 @@ class MouvementStock extends CommonObject
 	 */
 	public function _create($user, $fk_product, $entrepot_id, $qty, $type, $price = 0, $label = '', $inventorycode = '', $datem = '', $eatby = '', $sellby = '', $batch = '', $skip_batch = false, $id_product_batch = 0, $disablestockchangeforsubproduct = 0, $donotcleanemptylines = 0)
 	{
-		// phpcs:enable
+        //youssef
+        // phpcs:enable
 		global $conf, $langs;
 
 		require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';

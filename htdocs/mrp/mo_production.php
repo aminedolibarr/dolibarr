@@ -185,6 +185,7 @@ if (empty($reshook)) {
 	}
 
 	if (in_array($action, array('confirm_consumeorproduce', 'confirm_consumeandproduceall')) && $permissiontoproduce) {
+
 		$stockmove = new MouvementStock($db);
 
 		$labelmovement = GETPOST('inventorylabel', 'alphanohtml');
@@ -197,12 +198,10 @@ if (empty($reshook)) {
 			if ($line->role == 'toconsume') {
 				$tmpproduct = new Product($db);
 				$tmpproduct->fetch($line->fk_product);
-
 				$i = 1;
 				while (GETPOSTISSET('qty-'.$line->id.'-'.$i)) {
 					$qtytoprocess = price2num(GETPOST('qty-'.$line->id.'-'.$i));
-
-					if ($qtytoprocess != 0) {
+					//if ($qtytoprocess != 0) {
 						// Check warehouse is set if we should have to
 						if (GETPOSTISSET('idwarehouse-'.$line->id.'-'.$i)) {	// If there is a warehouse to set
 							if (!(GETPOST('idwarehouse-'.$line->id.'-'.$i) > 0)) {	// If there is no warehouse set.
@@ -219,10 +218,10 @@ if (empty($reshook)) {
 
 						$idstockmove = 0;
 						if (!$error && GETPOST('idwarehouse-'.$line->id.'-'.$i) > 0) {
-							// Record stock movement
+
+							// Record stock movementa
 							$id_product_batch = 0;
 							$stockmove->setOrigin($object->element, $object->id);
-
 							if ($qtytoprocess >= 0) {
 								$idstockmove = $stockmove->livraison($user, $line->fk_product, GETPOST('idwarehouse-'.$line->id.'-'.$i), $qtytoprocess, 0, $labelmovement, dol_now(), '', '', GETPOST('batch-'.$line->id.'-'.$i), $id_product_batch, $codemovement);
 							} else {
@@ -241,7 +240,7 @@ if (empty($reshook)) {
 							$moline->position = $pos;
 							$moline->fk_product = $line->fk_product;
 							$moline->fk_warehouse = GETPOST('idwarehouse-'.$line->id.'-'.$i);
-							$moline->qty = $qtytoprocess;
+							$moline->qty = $line->qty;
 							$moline->batch = GETPOST('batch-'.$line->id.'-'.$i);
 							$moline->role = 'consumed';
 							$moline->fk_mrp_production = $line->id;
@@ -256,7 +255,7 @@ if (empty($reshook)) {
 
 							$pos++;
 						}
-					}
+					//}
 
 					$i++;
 				}
