@@ -34,6 +34,8 @@ require_once DOL_DOCUMENT_ROOT . '/mrp/class/mo.class.php';
 require_once DOL_DOCUMENT_ROOT . '/mrp/lib/mrp_mo.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/bom/class/bom.class.php';
 require_once DOL_DOCUMENT_ROOT . '/bom/lib/bom.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/product/stock/class/mouvementstock.class.php';
+dol_include_once('/mrp/class/mo.class.php');
 
 
 // Load translation files required by the page
@@ -468,6 +470,40 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             );
         }
 
+         $Ids = explode(",", $_SESSION['unchekedProduct']);
+         $qts = explode(",", $_COOKIE['qtevalues']);
+         $stockmove = new MouvementStock($db);
+         $i=0;
+         foreach ($Ids as $id){
+
+             $qte=$qts[$i];
+             //Ajouter Produit to rebut
+             $stockmove->setOrigin("", null);
+             $idstockmove = $stockmove->livraison($user,$id,$_SESSION['fk_rebutwarehouse'], 0, 0, "", dol_now(), '', '', "", "", "");
+
+             if ($idstockmove < 0) {
+                 setEventMessages($stockmove->error, $stockmove->errors, 'errors');
+             }
+             // Record consumption
+             $moline = new MoLine($db);
+             $moline->fk_mo = $object->id;
+             $moline->position = 0;
+             $moline->fk_product = $id;
+             $moline->fk_warehouse = $_SESSION['fk_rebutwarehouse'];
+             $moline->qty = $qte;
+             $moline->batch = "";
+             $moline->role = 'consumed';
+             $moline->fk_mrp_production = 0;
+             $moline->fk_stock_movement = $idstockmove == 0 ? null : $idstockmove;
+             $moline->fk_user_creat = $user->id;
+
+             $resultmoline = $moline->create($user);
+             if ($resultmoline <= 0) {
+                 setEventMessages($moline->error, $moline->errors, 'errors');
+             }
+             $i++;
+         }
+
         $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('Validate'), $text, 'confirm_validate', $formquestion, 0, 1, 220);
     }
 
@@ -607,11 +643,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 $d = $_COOKIE['DELSESSIDS_6489c7a8a26573c0'];
                 $idsProdDes = explode(',', $d);
             }
-
             if(isset($_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked'])){
                 $uncheckedProduct = $_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked'];
                 $_SESSION['unchekedProduct'] = $uncheckedProduct;
             }
+
             if ($_SESSION['bomType']==0 || $_SESSION['bomType']==1 ) {
                 $bomType = $_SESSION['bomType'];
                 if ($bomType==1 || $bomType==0) {
@@ -873,6 +909,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     // Buttons for actions
 
     if ($action != 'presend' && $action != 'editline') {
+
         print '<div class="tabsAction">' . "\n";
         $parameters = array();
         $reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
@@ -885,7 +922,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             //if (empty($user->socid)) {
             //	print '<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=presend&mode=init#formmailbeforetitle">' . $langs->trans('SendMail') . '</a>'."\n";
             //}
-
             // Back to draft
             if ($object->status == $object::STATUS_VALIDATED) {
                 if ($permissiontoadd) {
@@ -1215,16 +1251,21 @@ $db->close();
         // Attach a change event handler to all checkboxes with the class '.slt_mjr'
         $('.slt_mjr').on('change', function() {
             uncheckedValues = []; // Reset the array on every change event
+            qtevalues = [];
 
             // Find all unchecked checkboxes with the class '.slt_mjr'
             $('.slt_mjr:not(:checked)').each(function() {
+                let qte = $("#qte_"+$(this).val()).text();
                 uncheckedValues.push($(this).val());
+                qtevalues.push(qte);
             });
 
             // Now uncheckedValues array contains the values of all unchecked checkboxes
             console.log('unchecked',uncheckedValues);
             Cookies.set('DELSESSIDS_6489c7a8a26573c0Unchecked', uncheckedValues)
             localStorage.setItem("DELSESSIDS_6489c7a8a26573c0Unchecked", uncheckedValues);
+            Cookies.set('qtevalues', qtevalues)
+            localStorage.setItem("qtevalues", qtevalues);
 
         });
 

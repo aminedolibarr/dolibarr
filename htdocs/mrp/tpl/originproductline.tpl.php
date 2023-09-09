@@ -59,7 +59,7 @@ if ($_SESSION['bomType'] != 2) {
     if($_SESSION['bomType'] == 1){
         echo '<td class="center"><input type="checkbox" class="slt_mnq" id="autoValidation" name="autoValidation" value="' . $this->tpl['selection'] . '"></td>';
     }
-    echo '<td class="center"><input type="checkbox" class="slt_mjr" id="autoValidation" name="autoValidation" value="' . $this->tpl['selection'] . '"></td>';
+    echo '<td class="center"><input type="checkbox" class="slt_mjr" id="autoValidation" name="autoValidation" value="' . $this->tpl['selection'] .'"></td>';
 
 }
 
@@ -83,7 +83,7 @@ if ($res) {
 }
 print '</td>';
 // Qty
-print '<td class="right">' . $this->tpl['qty'] . (($this->tpl['efficiency'] > 0 && $this->tpl['efficiency'] < 1) ? ' / ' . $form->textwithpicto($this->tpl['efficiency'], $langs->trans("ValueOfMeansLoss")) . ' = ' . $qtytoconsumeforline : '') . '</td>';
+print '<td class="right" id="qte_'.$this->tpl['selection'].'">' . $this->tpl['qty'] . (($this->tpl['efficiency'] > 0 && $this->tpl['efficiency'] < 1) ? ' / ' . $form->textwithpicto($this->tpl['efficiency'], $langs->trans("ValueOfMeansLoss")) . ' = ' . $qtytoconsumeforline : '') . '</td>';
 print '<td class="center">' . (empty($this->tpl['stock']) ? 0 : price2num($this->tpl['stock'], 'MS'));
 if ($this->tpl['seuil_stock_alerte'] != '' && ($this->tpl['stock'] < $this->tpl['seuil_stock_alerte'])) {
 	print ' ' . img_warning($langs->trans("StockLowerThanLimit", $this->tpl['seuil_stock_alerte']));
