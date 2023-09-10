@@ -470,7 +470,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             );
         }
 
-        
+
 
         $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('Validate'), $text, 'confirm_validate', $formquestion, 0, 1, 220);
     }
@@ -896,7 +896,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                     // TODO Add test that production has not started
                     print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_setdraft&confirm=yes&token=' . newToken() . '">' . $langs->trans("SetToDraft") . '</a>';
 
-                    // for handling rebut stock
+                    /*// for handling rebut stock
                     if(isset($_SESSION['bomType'])){
                         if($_SESSION['bomType']==1){
                     if(isset($_SESSION['unchekedProduct'])&& isset($_SESSION['fk_rebutwarehouse'])){
@@ -953,7 +953,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                     }
                     unset($_SESSION['unchekedProduct']);
                         }
-                    }
+                    }*/
 
                 }
             }
