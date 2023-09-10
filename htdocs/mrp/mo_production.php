@@ -346,7 +346,7 @@ if (empty($reshook)) {
             $qte=$qts[$j];
             //Ajouter Produit to rebut
             $stockmove_rebut->setOrigin("", null);
-            $idstockmove_rebut = $stockmove_rebut->livraison($user,$id,$_SESSION['fk_rebutwarehouse'], 0, 0, $labelmovement, dol_now(), '', '', "", "", $codemovement);
+            $idstockmove_rebut = $stockmove_rebut->livraison($user,$id,$_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, dol_now(), '', '', "", "", $codemovement);
 
             if ($idstockmove_rebut < 0) {
                 setEventMessages($stockmove_rebut->error, $stockmove_rebut->errors, 'errors');
