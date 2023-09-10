@@ -341,35 +341,18 @@ if (empty($reshook)) {
         //var_dump($qts);die();
         $stockmove_rebut = new MouvementStock($db);
         $j=0;
+
         foreach ($Ids as $id){
 
             $qte=$qts[$j];
             //Ajouter Produit to rebut
             $stockmove_rebut->setOrigin("", null);
-            $idstockmove_rebut = $stockmove_rebut->livraison($user,$id,$_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, dol_now(), '', '', "", "", $codemovement);
+            $idstockmove_rebut = $stockmove_rebut->reception($user,$id,$_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, dol_now(), '', '', "", "", $codemovement);
 
             if ($idstockmove_rebut < 0) {
                 setEventMessages($stockmove_rebut->error, $stockmove_rebut->errors, 'errors');
             }
 
-            // Record consumption
-            $moline_rebut = new MoLine($db);
-            $moline_rebut->fk_mo = $object->id;
-            $moline_rebut->position = 0;
-            $moline_rebut->fk_product = $id;
-            $moline_rebut->fk_warehouse = $_SESSION['fk_rebutwarehouse'];
-            $moline_rebut->qty = $qte;
-            $moline_rebut->batch = "";
-            $moline_rebut->role = 'consumed';
-            $moline_rebut->fk_mrp_production = 0;
-            $moline_rebut->fk_stock_movement = $idstockmove_rebut == 0 ? null : $idstockmove_rebut;
-            $moline_rebut->fk_user_creat = $user->id;
-
-            $resultmoline = $moline_rebut->create($user);
-
-            if ($resultmoline <= 0) {
-                setEventMessages($moline_rebut->error, $moline_rebut->errors, 'errors');
-            }
             $j++;
         }
 
