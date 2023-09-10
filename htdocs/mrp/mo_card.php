@@ -470,39 +470,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             );
         }
 
-         $Ids = explode(",", $_SESSION['unchekedProduct']);
-         $qts = explode(",", $_COOKIE['qtevalues']);
-         $stockmove = new MouvementStock($db);
-         $i=0;
-         foreach ($Ids as $id){
-
-             $qte=$qts[$i];
-             //Ajouter Produit to rebut
-             $stockmove->setOrigin("", null);
-             $idstockmove = $stockmove->livraison($user,$id,$_SESSION['fk_rebutwarehouse'], 0, 0, "", dol_now(), '', '', "", "", "");
-
-             if ($idstockmove < 0) {
-                 setEventMessages($stockmove->error, $stockmove->errors, 'errors');
-             }
-             // Record consumption
-             $moline = new MoLine($db);
-             $moline->fk_mo = $object->id;
-             $moline->position = 0;
-             $moline->fk_product = $id;
-             $moline->fk_warehouse = $_SESSION['fk_rebutwarehouse'];
-             $moline->qty = $qte;
-             $moline->batch = "";
-             $moline->role = 'consumed';
-             $moline->fk_mrp_production = 0;
-             $moline->fk_stock_movement = $idstockmove == 0 ? null : $idstockmove;
-             $moline->fk_user_creat = $user->id;
-
-             $resultmoline = $moline->create($user);
-             if ($resultmoline <= 0) {
-                 setEventMessages($moline->error, $moline->errors, 'errors');
-             }
-             $i++;
-         }
+        
 
         $formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('Validate'), $text, 'confirm_validate', $formquestion, 0, 1, 220);
     }
