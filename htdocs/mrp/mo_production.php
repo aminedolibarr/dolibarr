@@ -346,8 +346,10 @@ if (empty($reshook)) {
 
             $qte=$qts[$j];
             //Ajouter Produit to rebut
-            $stockmove_rebut->setOrigin("", null);
-            $idstockmove_rebut = $stockmove_rebut->reception($user,$id,$_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, dol_now(), '', '', "", "", $codemovement);
+            //$stockmove_rebut->setOrigin("", null);
+			$stockmove_rebut->origin_type = $object->element;
+			$stockmove_rebut->origin_id = $object->id;
+            $idstockmove_rebut = $stockmove_rebut->reception($user,$id,$_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, '', '', '', "", "", $codemovement);
 
             if ($idstockmove_rebut < 0) {
                 setEventMessages($stockmove_rebut->error, $stockmove_rebut->errors, 'errors');

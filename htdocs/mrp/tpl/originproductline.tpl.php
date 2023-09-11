@@ -63,7 +63,7 @@ if ($_SESSION['bomType'] != 2) {
 
 }
 
-// add by bilal
+
 
 //print '<td class="center"><input type="checkbox" class="slt_mjr" id="autoValidation" name="autoValidation" value="' . $this->tpl['id'] . '" " checked="checked"></td>';
 
