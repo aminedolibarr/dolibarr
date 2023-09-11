@@ -1224,7 +1224,7 @@ $db->close();
 
             // Find all unchecked checkboxes with the class '.slt_mjr'
             $('.slt_mjr:not(:checked)').each(function() {
-                let qte = $("#qte_"+$(this).val()).text();
+                let qte = $("#qte_"+$(this).val()).val();
                 uncheckedValues.push($(this).val());
                 qtevalues.push(qte);
             });

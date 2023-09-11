@@ -30,7 +30,7 @@ if (!empty($form) && !is_object($form)) {
 	$form = new Form($db);
 }
 
-
+$id_Bom = $_GET['fk_bom'];
 
 $qtytoconsumeforline = $this->tpl['qty'] / (!empty($this->tpl['efficiency']) ? $this->tpl['efficiency'] : 1);
 /*if ((empty($this->tpl['qty_frozen']) && $this->tpl['qty_bom'] > 1)) {
@@ -66,7 +66,6 @@ if ($_SESSION['bomType'] != 2) {
 
 
 //print '<td class="center"><input type="checkbox" class="slt_mjr" id="autoValidation" name="autoValidation" value="' . $this->tpl['id'] . '" " checked="checked"></td>';
-
 print '<td>';
 if ($res) {
 
@@ -83,7 +82,7 @@ if ($res) {
 }
 print '</td>';
 // Qty
-print '<td class="right" id="qte_'.$this->tpl['selection'].'">' . $this->tpl['qty'] . (($this->tpl['efficiency'] > 0 && $this->tpl['efficiency'] < 1) ? ' / ' . $form->textwithpicto($this->tpl['efficiency'], $langs->trans("ValueOfMeansLoss")) . ' = ' . $qtytoconsumeforline : '') . '</td>';
+print '<td class="right"><input onblur="updateQte(\''.$this->tpl['id'].'\',\''.$this->tpl['selection'].'\')" id="qte_'.$this->tpl['selection'].'" type="text" value="'. $this->tpl['qty'] . (($this->tpl['efficiency'] > 0 && $this->tpl['efficiency'] < 1) ? ' / ' . $form->textwithpicto($this->tpl['efficiency'], $langs->trans("ValueOfMeansLoss")) . ' = ' . $qtytoconsumeforline : '') . '"/></td>';
 print '<td class="center">' . (empty($this->tpl['stock']) ? 0 : price2num($this->tpl['stock'], 'MS'));
 if ($this->tpl['seuil_stock_alerte'] != '' && ($this->tpl['stock'] < $this->tpl['seuil_stock_alerte'])) {
 	print ' ' . img_warning($langs->trans("StockLowerThanLimit", $this->tpl['seuil_stock_alerte']));
@@ -194,7 +193,28 @@ if ($resql) {
 	}
 }
 
+
+if (isset($_GET['lineId']) && isset($_GET['qte'])) {
+    ob_start();
+    $id = $_GET['lineId'];
+    $qte = $_GET['qte'];
+    $idBom = $_GET['fk_bom'];
+    $updateQte = "UPDATE `llx_bom_bomline` SET qty = $qte WHERE rowid = $id";
+    // Execute the update query
+    $updateQte = $db->query($updateQte);
+    ?>
+    <script><?php echo("location.href = '".$_SERVER['PHP_SELF']."?action=create&token=".newToken()."&fk_bom=$idBom';");?></script>
+    <?php
+}
+
 ?>
+
+<script>
+    function updateQte(id,qteId) {
+        var qte = $("#qte_"+qteId).val();
+        location.href=location.href+"&qte="+qte+"&lineId="+id
+    }
+</script>
 
 <!-- END PHP TEMPLATE originproductline.tpl.php -->
 
