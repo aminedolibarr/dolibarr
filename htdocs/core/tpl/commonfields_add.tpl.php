@@ -31,9 +31,10 @@ if (empty($conf) || !is_object($conf)) {
 ?>
 <!-- BEGIN PHP TEMPLATE commonfields_add.tpl.php -->
 <?php
-
+global $user;
+$userWarehouse = $user->fk_warehouse;
+$isAdmin = $user->admin;
 $object->fields = dol_sort_array($object->fields, 'position');
-
 foreach ($object->fields as $key => $val) {
 	// Discard if field is a hidden field on form
 	if (abs($val['visible']) != 1 && abs($val['visible']) != 3) {
@@ -100,3 +101,14 @@ foreach ($object->fields as $key => $val) {
 
 ?>
 <!-- END PHP TEMPLATE commonfields_add.tpl.php -->
+<script>
+    /*jQuery("#fk_rebutwarehouse").click(function($){
+        debugger;
+        var isAdmin = "<?php echo $isAdmin; ?>"
+        var userWarehouse = "<?php echo $userWarehouse; ?>"
+        if(isAdmin==="0"){
+            $("#fk_rebutwarehouse").remove().html('<select id="fk_rebutwarehouse" class="flat maxwidth500 --success widthcentpercentminusx select2-hidden-accessible" name="fk_rebutwarehouse" data-select2-id="fk_rebutwarehouse" tabindex="-1" aria-hidden="true"><option value="-1" data-select2-id="6">&nbsp;</option<option value="'+warehouse+'">BUC</option></select>')
+        }
+
+    })*/
+</script>

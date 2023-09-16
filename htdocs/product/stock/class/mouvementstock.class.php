@@ -505,6 +505,7 @@ class MouvementStock extends CommonObject
 						$oldqtytouse = ($oldqty >= 0 ? $oldqty : 0);
 						// We make a test on oldpmp>0 to avoid to use normal rule on old data with no pmp field defined
 						if ($oldpmp > 0) {
+                            //youssef
 							$newpmp = price2num((($oldqtytouse * $oldpmp) + ($qty * $price)) / ($oldqtytouse + $qty), 'MU');
 						} else {
 							$newpmp = $price; // For this product, PMP was not yet set. We set it to input price.

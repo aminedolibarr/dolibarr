@@ -333,29 +333,30 @@ if (empty($reshook)) {
 			}
 		}
 
+        if($_SESSION['bomType']==1) {
+            //Ajouter Rebut Stick
+            $Ids = explode(",", $_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked']);
+            $qts = explode(",", $_COOKIE['qtevalues']);
+            //var_dump($Ids);echo"<br>";
+            //var_dump($qts);die();
+            $stockmove_rebut = new MouvementStock($db);
+            $j = 0;
 
-        //Ajouter Rebut Stick
-        $Ids = explode(",", $_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked']);
-        $qts = explode(",", $_COOKIE['qtevalues']);
-        //var_dump($Ids);echo"<br>";
-        //var_dump($qts);die();
-        $stockmove_rebut = new MouvementStock($db);
-        $j=0;
+            foreach ($Ids as $id) {
 
-        foreach ($Ids as $id){
+                $qte = $qts[$j];
+                //Ajouter Produit to rebut
+                //$stockmove_rebut->setOrigin("", null);
+                $stockmove_rebut->origin_type = $object->element;
+                $stockmove_rebut->origin_id = $object->id;
+                $idstockmove_rebut = $stockmove_rebut->reception($user, $id, $_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, '', '', '', "", "", $codemovement);
 
-            $qte=$qts[$j];
-            //Ajouter Produit to rebut
-            //$stockmove_rebut->setOrigin("", null);
-			$stockmove_rebut->origin_type = $object->element;
-			$stockmove_rebut->origin_id = $object->id;
-            $idstockmove_rebut = $stockmove_rebut->reception($user,$id,$_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, '', '', '', "", "", $codemovement);
+                if ($idstockmove_rebut < 0) {
+                    setEventMessages($stockmove_rebut->error, $stockmove_rebut->errors, 'errors');
+                }
 
-            if ($idstockmove_rebut < 0) {
-                setEventMessages($stockmove_rebut->error, $stockmove_rebut->errors, 'errors');
+                $j++;
             }
-
-            $j++;
         }
 
 		if (!$error) {
