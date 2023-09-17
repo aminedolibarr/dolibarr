@@ -36,7 +36,7 @@ $userWarehouse = $user->fk_warehouse;
 $isAdmin = $user->admin;
 $object->fields = dol_sort_array($object->fields, 'position');
 foreach ($object->fields as $key => $val) {
-	// Discard if field is a hidden field on form
+    // Discard if field is a hidden field on form
 	if (abs($val['visible']) != 1 && abs($val['visible']) != 3) {
 		continue;
 	}
@@ -85,7 +85,7 @@ foreach ($object->fields as $key => $val) {
 	} else {
 		$value = GETPOST($key, 'alphanohtml');
 	}
-	if (!empty($val['noteditable'])) {
+    if (!empty($val['noteditable'])) {
 		print $object->showOutputField($val, $key, $value, '', '', '', 0);
 	} else {
 		if ($key == 'lang') {
@@ -102,13 +102,22 @@ foreach ($object->fields as $key => $val) {
 ?>
 <!-- END PHP TEMPLATE commonfields_add.tpl.php -->
 <script>
-    /*jQuery("#fk_rebutwarehouse").click(function($){
+    jQuery(document).on('.valuefieldcreate select2:open', () => {
         debugger;
         var isAdmin = "<?php echo $isAdmin; ?>"
         var userWarehouse = "<?php echo $userWarehouse; ?>"
         if(isAdmin==="0"){
-            $("#fk_rebutwarehouse").remove().html('<select id="fk_rebutwarehouse" class="flat maxwidth500 --success widthcentpercentminusx select2-hidden-accessible" name="fk_rebutwarehouse" data-select2-id="fk_rebutwarehouse" tabindex="-1" aria-hidden="true"><option value="-1" data-select2-id="6">&nbsp;</option<option value="'+warehouse+'">BUC</option></select>')
+            $('#fk_warehouse option').each(function() {
+                if ( $(this).val() !== userWarehouse ) {
+                    $(this).remove();
+                }
+            });
+            $('#fk_rebutwarehouse option').each(function() {
+                if ( $(this).val() !== userWarehouse ) {
+                    $(this).remove();
+                }
+            });
         }
 
-    })*/
+    })
 </script>

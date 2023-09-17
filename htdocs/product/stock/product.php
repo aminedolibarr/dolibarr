@@ -306,7 +306,7 @@ if ($action == "correct_stock" && !$cancel) {
 					$disablestockchangeforsubproduct
 				); // We do not change value of stock for a correction
 			} else {
-				$result = $object->correct_stock(
+                $result = $object->correct_stock(
 					$user,
 					GETPOST("id_entrepot", 'int'),
 					$nbpiece,

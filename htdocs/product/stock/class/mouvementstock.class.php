@@ -514,7 +514,10 @@ class MouvementStock extends CommonObject
 						//print "qty=".$qty." newpmp=".$newpmp;
 						//exit;
 					} else {
-						$newpmp = $oldpmp;
+                        $oldqtytouse = ($oldqty >= 0 ? $oldqty : 0);
+                        $newpmp = price2num((($oldqtytouse * $oldpmp) + ($qty * $price)) / ($oldqtytouse + $qty), 'MU');
+                        //old méthode
+                        //$newpmp = $oldpmp;
 					}
 				} elseif ($type == 1 || $type == 2) {
 					// After a stock decrease, we don't change value of the AWP/PMP of a product.
