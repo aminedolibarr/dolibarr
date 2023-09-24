@@ -79,6 +79,9 @@ $sql = "SELECT e.rowid, e.ref as label, e.lieu, e.statut as status";
 $sql .= " FROM ".MAIN_DB_PREFIX."entrepot as e";
 $sql .= " WHERE e.statut in (".Entrepot::STATUS_CLOSED.",".Entrepot::STATUS_OPEN_ALL.")";
 $sql .= " AND e.entity IN (".getEntity('stock').")";
+if(!$user->admin){
+    $sql .= " AND e.rowid IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+}
 $sql .= $db->order('e.statut', 'DESC');
 $sql .= $db->plimit($max + 1, 0);
 
@@ -149,6 +152,9 @@ $sql .= ", ".MAIN_DB_PREFIX."product as p";
 $sql .= " WHERE m.fk_product = p.rowid";
 $sql .= " AND m.fk_entrepot = e.rowid";
 $sql .= " AND e.entity IN (".getEntity('stock').")";
+if(!$user->admin){
+    $sql .= " AND m.fk_entrepot IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+}
 if (empty($conf->global->STOCK_SUPPORTS_SERVICES)) {
 	$sql .= " AND p.fk_product_type = ".Product::TYPE_PRODUCT;
 }
