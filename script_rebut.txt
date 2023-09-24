@@ -1,0 +1,25 @@
+ALTER TABLE `llx_entrepot`
+ADD warehouse_rebut INT;
+
+UPDATE `llx_entrepot` SET `warehouse_rebut`=2 WHERE rowid=1;
+UPDATE `llx_entrepot` SET `warehouse_rebut`=22 WHERE rowid=10;
+UPDATE `llx_entrepot` SET `warehouse_rebut`=21 WHERE rowid=11;
+UPDATE `llx_entrepot` SET `warehouse_rebut`=20 WHERE rowid=12;
+
+
+ALTER TABLE `llx_user`
+ADD warehouse_rebut INT;
+
+UPDATE `llx_user` SET warehouse_rebut=2 WHERE rowid=1;
+UPDATE `llx_user` SET warehouse_rebut=2 WHERE rowid=4;
+UPDATE `llx_user` SET warehouse_rebut=2 WHERE rowid=5;
+UPDATE `llx_user` SET warehouse_rebut=2 WHERE rowid=6;
+UPDATE `llx_user` SET warehouse_rebut=2 WHERE rowid=7;
+UPDATE `llx_user` SET warehouse_rebut=2 WHERE rowid=8;
+UPDATE `llx_user` SET warehouse_rebut=22 WHERE rowid=9;
+UPDATE `llx_user` SET warehouse_rebut=22 WHERE rowid=10;
+UPDATE `llx_user` SET warehouse_rebut=21 WHERE rowid=11;
+UPDATE `llx_user` SET warehouse_rebut=21 WHERE rowid=12;
+UPDATE `llx_user` SET warehouse_rebut=20 WHERE rowid=13;
+UPDATE `llx_user` SET warehouse_rebut=20 WHERE rowid=14;
+UPDATE `llx_user` SET warehouse_rebut=23 WHERE rowid=15;
