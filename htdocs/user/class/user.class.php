@@ -364,6 +364,11 @@ class User extends CommonObject
 	 */
 	public $fk_warehouse;
 
+    /**
+     *@var int id of warehouse rebut
+     */
+    public $warehouse_rebut;
+
 
 	public $fields = array(
 		'rowid'=>array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>1, 'visible'=>-2, 'notnull'=>1, 'index'=>1, 'position'=>1, 'comment'=>'Id'),
@@ -459,6 +464,7 @@ class User extends CommonObject
 		$sql .= " u.color,";
 		$sql .= " u.dateemployment, u.dateemploymentend,";
 		$sql .= " u.fk_warehouse,";
+		$sql .= " u.warehouse_rebut,";
 		$sql .= " u.ref_ext,";
 		$sql .= " u.default_range, u.default_c_exp_tax_cat,"; // Expense report default mode
 		$sql .= " u.national_registration_number,";
@@ -592,6 +598,7 @@ class User extends CommonObject
 				$this->default_range = $obj->default_range;
 				$this->default_c_exp_tax_cat = $obj->default_c_exp_tax_cat;
 				$this->fk_warehouse = $obj->fk_warehouse;
+				$this->warehouse_rebut = $obj->warehouse_rebut;
 
 				// Protection when module multicompany was set, admin was set to first entity and then, the module was disabled,
 				// in such case, this admin user must be admin for ALL entities.
@@ -1608,6 +1615,7 @@ class User extends CommonObject
 				$warehouseid = $entrepot->create($user);
 
 				$this->fk_warehouse = $warehouseid;
+				$this->warehouse_rebut = $user->warehouse_rebut;
 			}
 
 			// Update minor fields
@@ -1877,6 +1885,10 @@ class User extends CommonObject
 		$nbrowsaffected = 0;
 		$error = 0;
 
+        require_once DOL_DOCUMENT_ROOT.'/product/stock/class/entrepot.class.php';
+        $entrepot = new Entrepot($this->db);
+        $id_rebut = $entrepot->getrebut((int) $this->fk_warehouse);
+
 		dol_syslog(get_class($this)."::update notrigger=".$notrigger.", nosyncmember=".$nosyncmember.", nosyncmemberpass=".$nosyncmemberpass);
 
 		// Clean parameters
@@ -1918,6 +1930,8 @@ class User extends CommonObject
 		$this->dateendvalidity				= empty($this->dateendvalidity) ? '' : $this->dateendvalidity;
 		$this->birth						= empty($this->birth) ? '' : $this->birth;
 		$this->fk_warehouse					= (int) $this->fk_warehouse;
+		$this->warehouse_rebut				= (int) $id_rebut;
+
 
 		$this->setUpperOrLowerCase();
 
@@ -2032,6 +2046,7 @@ class User extends CommonObject
 		$sql .= ", default_range = ".($this->default_range > 0 ? $this->default_range : 'null');
 		$sql .= ", default_c_exp_tax_cat = ".($this->default_c_exp_tax_cat > 0 ? $this->default_c_exp_tax_cat : 'null');
 		$sql .= ", fk_warehouse = ".($this->fk_warehouse > 0 ? $this->fk_warehouse : "null");
+		$sql .= ", warehouse_rebut = ".($id_rebut > 0 ? $id_rebut : "null");
 		$sql .= ", lang = ".($this->lang ? "'".$this->db->escape($this->lang)."'" : "null");
 		$sql .= " WHERE rowid = ".((int) $this->id);
 

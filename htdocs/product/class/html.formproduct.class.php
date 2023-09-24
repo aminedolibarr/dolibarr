@@ -75,7 +75,7 @@ class FormProduct
 	 */
 	public function loadWarehouses($fk_product = 0, $batch = '', $status = '', $sumStock = true, $exclude = array(), $stockMin = false, $orderBy = 'e.ref')
 	{
-		global $conf, $langs;
+		global $conf, $langs,$user;
 
 		if (empty($fk_product) && count($this->cache_warehouses)) {
 			return 0; // Cache already loaded and we do not want a list with information specific to a product
@@ -112,6 +112,9 @@ class FormProduct
 			}
 		}
 		$sql .= " WHERE e.entity IN (".getEntity('stock').")";
+        if(!$user->admin){
+            $sql .= " AND e.rowid IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+        }
 		if (count($warehouseStatus)) {
 			$sql .= " AND e.statut IN (".$this->db->sanitize(implode(',', $warehouseStatus)).")";
 		} else {

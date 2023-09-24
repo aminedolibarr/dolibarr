@@ -424,7 +424,7 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 
 $newcardbutton = dolGetButtonTitle($langs->trans('MenuNewWarehouse'), '', 'fa fa-plus-circle', DOL_URL_ROOT.'/product/stock/card.php?action=create&backtopage='.urlencode($_SERVER['PHP_SELF']), '', $user->rights->stock->creer);
 
-$nbtotalofrecords = $user->admin==1?$nbtotalofrecords:1;
+$nbtotalofrecords = $user->admin?$nbtotalofrecords:2;
 print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'stock', 0, $newcardbutton, '', $limit, 0, 0, 1);
 
 // Add code for pre mass action (confirmation or email presend form)
@@ -609,16 +609,16 @@ print '</tr>'."\n";
 $i = 0;
 $isAdmin = $user->admin;
 $userWarehouse = $user->fk_warehouse;
-
-
 $warehouse = new Entrepot($db);
+$id_warehouse_rebut = $warehouse->getrebut($userWarehouse);
+
 
 while ($i < min($num, $limit)) {
     $obj = $db->fetch_object($resql);
     if (empty($obj)) {
         break; // Should not happen
     }
-    if($isAdmin==1 || $userWarehouse==$obj->rowid) {
+    if($isAdmin || $userWarehouse==$obj->rowid || $id_warehouse_rebut==$obj->rowid) {
         // Store properties in $object
         $warehouse->setVarsFromFetchObj($obj);
 

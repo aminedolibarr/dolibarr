@@ -1008,7 +1008,7 @@ if (!$variants) {
 		print '</tr>';
 	}
 
-	$sql = "SELECT e.rowid, e.ref, e.lieu, e.fk_parent, e.statut as status, ps.reel, ps.rowid as product_stock_id, p.pmp";
+	$sql = "SELECT e.rowid,e.warehouse_rebut, e.ref, e.lieu, e.fk_parent, e.statut as status, ps.reel, ps.rowid as product_stock_id, p.pmp";
 	$sql .= " FROM ".MAIN_DB_PREFIX."entrepot as e,";
 	$sql .= " ".MAIN_DB_PREFIX."product_stock as ps";
 	$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product as p ON p.rowid = ps.fk_product";
@@ -1020,7 +1020,7 @@ if (!$variants) {
 
 	$entrepotstatic = new Entrepot($db);
 	$product_lot_static = new Productlot($db);
-
+    $id_warehouse = $entrepotstatic->getrebut($user->fk_warehouse);
 	$num = 0;
 	$total = 0;
 	$totalvalue = $totalvaluesell = 0;
@@ -1034,180 +1034,182 @@ if (!$variants) {
 		$var = false;
 		while ($i < $num) {
 			$obj = $db->fetch_object($resql);
+            if($user->admin || $obj->rowid==$user->fk_warehouse || $obj->rowid==$id_warehouse) {
+                $entrepotstatic->id = $obj->rowid;
+                $entrepotstatic->ref = $obj->ref;
+                $entrepotstatic->label = $obj->ref;
+                $entrepotstatic->lieu = $obj->lieu;
+                $entrepotstatic->fk_parent = $obj->fk_parent;
+                $entrepotstatic->statut = $obj->status;
+                $entrepotstatic->status = $obj->status;
 
-			$entrepotstatic->id = $obj->rowid;
-			$entrepotstatic->ref = $obj->ref;
-			$entrepotstatic->label = $obj->ref;
-			$entrepotstatic->lieu = $obj->lieu;
-			$entrepotstatic->fk_parent = $obj->fk_parent;
-			$entrepotstatic->statut = $obj->status;
-			$entrepotstatic->status = $obj->status;
+                $stock_real = price2num($obj->reel, 'MS');
+                print '<tr class="oddeven">';
 
-			$stock_real = price2num($obj->reel, 'MS');
-			print '<tr class="oddeven">';
+                // Warehouse
+                print '<td colspan="4">';
+                print $entrepotstatic->getNomUrl(1);
+                if (!empty($conf->use_javascript_ajax) && isModEnabled('productbatch') && $object->hasbatch()) {
+                    print '<a class="collapse_batch marginleftonly" id="ent' . $entrepotstatic->id . '" href="#">';
+                    print (empty($conf->global->STOCK_SHOW_ALL_BATCH_BY_DEFAULT) ? '(+)' : '(-)');
+                    print '</a>';
+                }
+                print '</td>';
 
-			// Warehouse
-			print '<td colspan="4">';
-			print $entrepotstatic->getNomUrl(1);
-			if (!empty($conf->use_javascript_ajax) && isModEnabled('productbatch') && $object->hasbatch()) {
-				print '<a class="collapse_batch marginleftonly" id="ent' . $entrepotstatic->id . '" href="#">';
-				print (empty($conf->global->STOCK_SHOW_ALL_BATCH_BY_DEFAULT) ? '(+)' : '(-)');
-				print '</a>';
-			}
-			print '</td>';
+                print '<td class="right">' . $stock_real . ($stock_real < 0 ? ' ' . img_warning() : '') . '</td>';
 
-			print '<td class="right">'.$stock_real.($stock_real < 0 ? ' '.img_warning() : '').'</td>';
+                // PMP
+                print '<td class="right nowraponall">' . (price2num($object->pmp) ? price2num($object->pmp, 'MU') : '') . '</td>';
 
-			// PMP
-			print '<td class="right nowraponall">'.(price2num($object->pmp) ? price2num($object->pmp, 'MU') : '').'</td>';
+                // Value purchase
+                if ($usercancreadprice) {
+                    print '<td class="right amount nowraponall">' . (price2num($object->pmp) ? price(price2num($object->pmp * $obj->reel, 'MT')) : '') . '</td>';
+                } else {
+                    print '<td class="right amount nowraponall"></td>';
+                }
 
-			// Value purchase
-			if ($usercancreadprice) {
-				print '<td class="right amount nowraponall">'.(price2num($object->pmp) ? price(price2num($object->pmp * $obj->reel, 'MT')) : '').'</td>';
-			} else {
-				print '<td class="right amount nowraponall"></td>';
-			}
+                // Sell price
+                $minsellprice = null;
+                $maxsellprice = null;
+                print '<td class="right">';
+                if (!empty($conf->global->PRODUIT_MULTIPRICES)) {
+                    foreach ($object->multiprices as $priceforlevel) {
+                        if (is_numeric($priceforlevel)) {
+                            if (is_null($maxsellprice) || $priceforlevel > $maxsellprice) {
+                                $maxsellprice = $priceforlevel;
+                            }
+                            if (is_null($minsellprice) || $priceforlevel < $minsellprice) {
+                                $minsellprice = $priceforlevel;
+                            }
+                        }
+                    }
+                    print '<span class="valignmiddle">';
+                    if ($usercancreadprice) {
+                        if ($minsellprice != $maxsellprice) {
+                            print price(price2num($minsellprice, 'MU'), 1) . ' - ' . price(price2num($maxsellprice, 'MU'), 1);
+                        } else {
+                            print price(price2num($minsellprice, 'MU'), 1);
+                        }
+                    }
+                    print '</span>';
+                    print $form->textwithpicto('', $langs->trans("Variable"));
+                } elseif ($usercancreadprice) {
+                    print price(price2num($object->price, 'MU'), 1);
+                }
+                print '</td>';
 
-			// Sell price
-			$minsellprice = null; $maxsellprice = null;
-			print '<td class="right">';
-			if (!empty($conf->global->PRODUIT_MULTIPRICES)) {
-				foreach ($object->multiprices as $priceforlevel) {
-					if (is_numeric($priceforlevel)) {
-						if (is_null($maxsellprice) || $priceforlevel > $maxsellprice) {
-							$maxsellprice = $priceforlevel;
-						}
-						if (is_null($minsellprice) || $priceforlevel < $minsellprice) {
-							$minsellprice = $priceforlevel;
-						}
-					}
-				}
-				print '<span class="valignmiddle">';
-				if ($usercancreadprice) {
-					if ($minsellprice != $maxsellprice) {
-						print price(price2num($minsellprice, 'MU'), 1).' - '.price(price2num($maxsellprice, 'MU'), 1);
-					} else {
-						print price(price2num($minsellprice, 'MU'), 1);
-					}
-				}
-				print '</span>';
-				print $form->textwithpicto('', $langs->trans("Variable"));
-			} elseif ($usercancreadprice) {
-				print price(price2num($object->price, 'MU'), 1);
-			}
-			print '</td>';
+                // Value sell
+                print '<td class="right amount nowraponall">';
+                if (!empty($conf->global->PRODUIT_MULTIPRICES)) {
+                    print '<span class="valignmiddle">';
+                    if ($usercancreadprice) {
+                        if ($minsellprice != $maxsellprice) {
+                            print price(price2num($minsellprice * $obj->reel, 'MT'), 1) . ' - ' . price(price2num($maxsellprice * $obj->reel, 'MT'), 1);
+                        } else {
+                            print price(price2num($minsellprice * $obj->reel, 'MT'), 1);
+                        }
+                    }
+                    print '</span>';
+                    print $form->textwithpicto('', $langs->trans("Variable"));
+                } else {
+                    if ($usercancreadprice) {
+                        print price(price2num($object->price * $obj->reel, 'MT'), 1);
+                    }
+                }
+                print '</td>';
+                print '<td></td>';
+                print '<td></td>';
+                print '</tr>';
+                $total += $obj->reel;
+                if (price2num($object->pmp)) {
+                    $totalwithpmp += $obj->reel;
+                }
+                $totalvalue = $totalvalue + ($object->pmp * $obj->reel);
+                $totalvaluesell = $totalvaluesell + ($object->price * $obj->reel);
+                // Batch Detail
+                if ((isModEnabled('productbatch')) && $object->hasbatch()) {
+                    $details = Productbatch::findAll($db, $obj->product_stock_id, 0, $object->id);
+                    if ($details < 0) {
+                        dol_print_error($db);
+                    }
+                    foreach ($details as $pdluo) {
+                        $product_lot_static->id = $pdluo->lotid;
+                        $product_lot_static->batch = $pdluo->batch;
+                        $product_lot_static->eatby = $pdluo->eatby;
+                        $product_lot_static->sellby = $pdluo->sellby;
 
-			// Value sell
-			print '<td class="right amount nowraponall">';
-			if (!empty($conf->global->PRODUIT_MULTIPRICES)) {
-				print '<span class="valignmiddle">';
-				if ($usercancreadprice) {
-					if ($minsellprice != $maxsellprice) {
-						print price(price2num($minsellprice * $obj->reel, 'MT'), 1).' - '.price(price2num($maxsellprice * $obj->reel, 'MT'), 1);
-					} else {
-						print price(price2num($minsellprice * $obj->reel, 'MT'), 1);
-					}
-				}
-				print '</span>';
-				print $form->textwithpicto('', $langs->trans("Variable"));
-			} else {
-				if ($usercancreadprice) {
-					print price(price2num($object->price * $obj->reel, 'MT'), 1);
-				}
-			}
-			print '</td>';
-			print '<td></td>';
-			print '<td></td>';
-			print '</tr>';
-			$total += $obj->reel;
-			if (price2num($object->pmp)) {
-				$totalwithpmp += $obj->reel;
-			}
-			$totalvalue = $totalvalue + ($object->pmp * $obj->reel);
-			$totalvaluesell = $totalvaluesell + ($object->price * $obj->reel);
-			// Batch Detail
-			if ((isModEnabled('productbatch')) && $object->hasbatch()) {
-				$details = Productbatch::findAll($db, $obj->product_stock_id, 0, $object->id);
-				if ($details < 0) {
-					dol_print_error($db);
-				}
-				foreach ($details as $pdluo) {
-					$product_lot_static->id = $pdluo->lotid;
-					$product_lot_static->batch = $pdluo->batch;
-					$product_lot_static->eatby = $pdluo->eatby;
-					$product_lot_static->sellby = $pdluo->sellby;
-
-					if ($action == 'editline' && GETPOST('lineid', 'int') == $pdluo->id) { //Current line edit
-						print "\n".'<tr>';
-						print '<td colspan="9">';
-						print '<form action="'.$_SERVER["PHP_SELF"].'" method="POST">';
-						print '<input type="hidden" name="token" value="'.newToken().'">';
-						print '<input type="hidden" name="pdluoid" value="'.$pdluo->id.'"><input type="hidden" name="action" value="updateline"><input type="hidden" name="id" value="'.$id.'"><table class="noborder centpercent"><tr><td width="10%"></td>';
-						print '<td class="right" width="10%"><input type="text" name="batch_number" value="'.$pdluo->batch.'"></td>';
-						if (empty($conf->global->PRODUCT_DISABLE_SELLBY)) {
-							print '<td class="center" width="10%">';
-							print $form->selectDate($pdluo->sellby, 'sellby', '', '', 1, '', 1, 0);
-							print '</td>';
-						}
-						if (empty($conf->global->PRODUCT_DISABLE_EATBY)) {
-							print '<td class="center" width="10%">';
-							print $form->selectDate($pdluo->eatby, 'eatby', '', '', 1, '', 1, 0);
-							print '</td>';
-						}
-						print '<td class="right" colspan="3">'.$pdluo->qty.($pdluo->qty < 0 ? ' '.img_warning() : '').'</td>';
-						print '<td colspan="4"><input type="submit" class="button button-save" id="savelinebutton marginbottomonly" name="save" value="'.$langs->trans("Save").'">';
-						print '<input type="submit" class="button button-cancel" id="cancellinebutton" name="Cancel" value="'.$langs->trans("Cancel").'"></td></tr>';
-						print '</table>';
-						print '</form>';
-						print '</td>';
-						print '<td></td>';
-						print '<td></td>';
-						print '</tr>';
-					} else {
-						print "\n".'<tr style="display:'.(empty($conf->global->STOCK_SHOW_ALL_BATCH_BY_DEFAULT) ? 'none' : 'visible').';" class="batch_warehouse'.$entrepotstatic->id.'"><td class="left">';
-						print '</td>';
-						print '<td class="right nowraponall">';
-						print $product_lot_static->getNomUrl(1);
-						print '</td>';
-						$colspan = 3;
-						if (empty($conf->global->PRODUCT_DISABLE_SELLBY)) {
-							$colspan--;
-							print '<td class="center">'.dol_print_date($pdluo->sellby, 'day').'</td>';
-						}
-						if (empty($conf->global->PRODUCT_DISABLE_EATBY)) {
-							$colspan--;
-							print '<td class="center">'.dol_print_date($pdluo->eatby, 'day').'</td>';
-						}
-						print '<td class="right" colspan="'.$colspan.'">'.$pdluo->qty.($pdluo->qty < 0 ? ' '.img_warning() : '').'</td>';
-						print '<td colspan="4"></td>';
-						print '<td class="center">';
-						if ($entrepotstatic->status != $entrepotstatic::STATUS_CLOSED) {
-							print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;id_entrepot='.$entrepotstatic->id.'&amp;action=transfert&amp;pdluoid='.$pdluo->id.'">';
-							print img_picto($langs->trans("TransferStock"), 'add', 'class="hideonsmartphone paddingright" style="color: #a69944"');
-							print $langs->trans("TransferStock");
-							print '</a>';
-							// Disabled, because edition of stock content must use the "Correct stock menu".
-							// Do not use this, or data will be wrong (bad tracking of movement label, inventory code, ...
-							//print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$id.'&action=editline&token='.newToken().'&lineid='.$pdluo->id.'#'.$pdluo->id.'">';
-							//print img_edit().'</a>';
-						}
-						print '</td>';
-						print '<td class="center">';
-						if ($entrepotstatic->status != $entrepotstatic::STATUS_CLOSED) {
-							print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;id_entrepot='.$entrepotstatic->id.'&amp;action=correction&amp;pdluoid='.$pdluo->id.'">';
-							print img_picto($langs->trans("CorrectStock"), 'add', 'class="hideonsmartphone paddingright" style="color: #a69944"');
-							print $langs->trans("CorrectStock");
-							print '</a>';
-							// Disabled, because edition of stock content must use the "Correct stock menu".
-							// Do not use this, or data will be wrong (bad tracking of movement label, inventory code, ...
-							//print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$id.'&action=editline&token='.newToken().'&lineid='.$pdluo->id.'#'.$pdluo->id.'">';
-							//print img_edit().'</a>';
-						}
-						print '</td>';
-						print '</tr>';
-					}
-				}
-			}
+                        if ($action == 'editline' && GETPOST('lineid', 'int') == $pdluo->id) { //Current line edit
+                            print "\n" . '<tr>';
+                            print '<td colspan="9">';
+                            print '<form action="' . $_SERVER["PHP_SELF"] . '" method="POST">';
+                            print '<input type="hidden" name="token" value="' . newToken() . '">';
+                            print '<input type="hidden" name="pdluoid" value="' . $pdluo->id . '"><input type="hidden" name="action" value="updateline"><input type="hidden" name="id" value="' . $id . '"><table class="noborder centpercent"><tr><td width="10%"></td>';
+                            print '<td class="right" width="10%"><input type="text" name="batch_number" value="' . $pdluo->batch . '"></td>';
+                            if (empty($conf->global->PRODUCT_DISABLE_SELLBY)) {
+                                print '<td class="center" width="10%">';
+                                print $form->selectDate($pdluo->sellby, 'sellby', '', '', 1, '', 1, 0);
+                                print '</td>';
+                            }
+                            if (empty($conf->global->PRODUCT_DISABLE_EATBY)) {
+                                print '<td class="center" width="10%">';
+                                print $form->selectDate($pdluo->eatby, 'eatby', '', '', 1, '', 1, 0);
+                                print '</td>';
+                            }
+                            print '<td class="right" colspan="3">' . $pdluo->qty . ($pdluo->qty < 0 ? ' ' . img_warning() : '') . '</td>';
+                            print '<td colspan="4"><input type="submit" class="button button-save" id="savelinebutton marginbottomonly" name="save" value="' . $langs->trans("Save") . '">';
+                            print '<input type="submit" class="button button-cancel" id="cancellinebutton" name="Cancel" value="' . $langs->trans("Cancel") . '"></td></tr>';
+                            print '</table>';
+                            print '</form>';
+                            print '</td>';
+                            print '<td></td>';
+                            print '<td></td>';
+                            print '</tr>';
+                        } else {
+                            print "\n" . '<tr style="display:' . (empty($conf->global->STOCK_SHOW_ALL_BATCH_BY_DEFAULT) ? 'none' : 'visible') . ';" class="batch_warehouse' . $entrepotstatic->id . '"><td class="left">';
+                            print '</td>';
+                            print '<td class="right nowraponall">';
+                            print $product_lot_static->getNomUrl(1);
+                            print '</td>';
+                            $colspan = 3;
+                            if (empty($conf->global->PRODUCT_DISABLE_SELLBY)) {
+                                $colspan--;
+                                print '<td class="center">' . dol_print_date($pdluo->sellby, 'day') . '</td>';
+                            }
+                            if (empty($conf->global->PRODUCT_DISABLE_EATBY)) {
+                                $colspan--;
+                                print '<td class="center">' . dol_print_date($pdluo->eatby, 'day') . '</td>';
+                            }
+                            print '<td class="right" colspan="' . $colspan . '">' . $pdluo->qty . ($pdluo->qty < 0 ? ' ' . img_warning() : '') . '</td>';
+                            print '<td colspan="4"></td>';
+                            print '<td class="center">';
+                            if ($entrepotstatic->status != $entrepotstatic::STATUS_CLOSED) {
+                                print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;id_entrepot=' . $entrepotstatic->id . '&amp;action=transfert&amp;pdluoid=' . $pdluo->id . '">';
+                                print img_picto($langs->trans("TransferStock"), 'add', 'class="hideonsmartphone paddingright" style="color: #a69944"');
+                                print $langs->trans("TransferStock");
+                                print '</a>';
+                                // Disabled, because edition of stock content must use the "Correct stock menu".
+                                // Do not use this, or data will be wrong (bad tracking of movement label, inventory code, ...
+                                //print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$id.'&action=editline&token='.newToken().'&lineid='.$pdluo->id.'#'.$pdluo->id.'">';
+                                //print img_edit().'</a>';
+                            }
+                            print '</td>';
+                            print '<td class="center">';
+                            if ($entrepotstatic->status != $entrepotstatic::STATUS_CLOSED) {
+                                print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&amp;id_entrepot=' . $entrepotstatic->id . '&amp;action=correction&amp;pdluoid=' . $pdluo->id . '">';
+                                print img_picto($langs->trans("CorrectStock"), 'add', 'class="hideonsmartphone paddingright" style="color: #a69944"');
+                                print $langs->trans("CorrectStock");
+                                print '</a>';
+                                // Disabled, because edition of stock content must use the "Correct stock menu".
+                                // Do not use this, or data will be wrong (bad tracking of movement label, inventory code, ...
+                                //print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$id.'&action=editline&token='.newToken().'&lineid='.$pdluo->id.'#'.$pdluo->id.'">';
+                                //print img_edit().'</a>';
+                            }
+                            print '</td>';
+                            print '</tr>';
+                        }
+                    }
+                }
+            }
 			$i++;
 		}
 	} else {

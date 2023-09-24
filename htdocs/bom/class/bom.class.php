@@ -393,6 +393,27 @@ class BOM extends CommonObject
 		return $result;
 	}
 
+    /**
+     * 	Load warehouse rebut data
+     *
+     *  @param	int		$id      warehouse id
+     *  @return	void
+     */
+    public function getRebutFromBom($id)
+    {
+        $sql = "SELECT b.fk_warehouse";
+        $sql .= " FROM ".$this->db->prefix()."bom_bom as b";
+        $sql .= " WHERE b.rowid = ".((int) $id);
+
+        $result = $this->db->query($sql);
+        if ($result) {
+            $obj = $this->db->fetch_object($result);
+            return $obj->fk_warehouse;
+        } else {
+            dol_print_error($this->db);
+        }
+    }
+
 	/**
 	 * Load object lines in memory from the database
 	 *
@@ -1979,4 +2000,5 @@ class BOMLine extends CommonObjectLine
 	{
 		$this->initAsSpecimenCommon();
 	}
+
 }

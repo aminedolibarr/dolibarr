@@ -21,6 +21,7 @@
  * $langs
  * $form
  */
+require_once DOL_DOCUMENT_ROOT.'/product/stock/class/entrepot.class.php';
 
 // Protection to avoid direct call of template
 if (empty($conf) || !is_object($conf)) {
@@ -31,9 +32,11 @@ if (empty($conf) || !is_object($conf)) {
 ?>
 <!-- BEGIN PHP TEMPLATE commonfields_add.tpl.php -->
 <?php
-global $user;
+global $user,$db;
 $userWarehouse = $user->fk_warehouse;
 $isAdmin = $user->admin;
+$warehouse_rebut = new Entrepot($db);
+$id_warehouse = $warehouse_rebut->getrebut($userWarehouse);
 $object->fields = dol_sort_array($object->fields, 'position');
 foreach ($object->fields as $key => $val) {
     // Discard if field is a hidden field on form
@@ -106,14 +109,35 @@ foreach ($object->fields as $key => $val) {
         debugger;
         var isAdmin = "<?php echo $isAdmin; ?>"
         var userWarehouse = "<?php echo $userWarehouse; ?>"
+        var idWarehouse = "<?php echo $id_warehouse; ?>"
         if(isAdmin==="0"){
+            $('#fk_bom option').each(function() {
+                let bomvalue = $(this).val();
+                if(bomvalue!=="-1"){
+                    $.post("<?php echo DOL_URL_ROOT ?>/mrp/ajax/custom.php",{
+                        bom:bomvalue,
+                        token: "<?php echo currentToken(); ?>"
+                    },function (response) {
+                        console.log(response)
+                        let id = response.toString();
+                        if ( id !== userWarehouse && id !== idWarehouse) {
+                            $('#fk_bom option[value='+bomvalue+']').remove();
+                        }
+                    });
+                }
+            });
             $('#fk_warehouse option').each(function() {
-                if ( $(this).val() !== userWarehouse ) {
+                if ( $(this).val() !== userWarehouse && $(this).val() !== idWarehouse) {
+                    $(this).remove();
+                }
+            });
+            $('#fk_default_warehouse option').each(function() {
+                if ( $(this).val() !== userWarehouse && $(this).val() !== idWarehouse) {
                     $(this).remove();
                 }
             });
             $('#fk_rebutwarehouse option').each(function() {
-                if ( $(this).val() !== userWarehouse ) {
+                if ( $(this).val() !== userWarehouse && $(this).val() !== idWarehouse) {
                     $(this).remove();
                 }
             });

@@ -118,6 +118,11 @@ class Entrepot extends CommonObject
 	 */
 	public $statuts = array();
 
+    /**
+     * @var int ID of parent
+     */
+    public $warehouse_rebut;
+
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
@@ -142,7 +147,8 @@ class Entrepot extends CommonObject
 		//'import_key' =>array('type'=>'varchar(14)', 'label'=>'ImportId', 'enabled'=>1, 'visible'=>-2, 'position'=>1000),
 		//'model_pdf' =>array('type'=>'varchar(255)', 'label'=>'ModelPDF', 'enabled'=>1, 'visible'=>0, 'position'=>1010),
 		'statut' =>array('type'=>'tinyint(4)', 'label'=>'Status', 'enabled'=>1, 'visible'=>1, 'position'=>500, 'css'=>'minwidth50'),
-	);
+        'warehouse_rebut' =>array('type'=>'integer', 'label'=>'Warehouse Rebut', 'enabled'=>1, 'visible'=>2, 'default'=>1, 'position'=>501),
+    );
 
 	/**
 	 * Warehouse closed, inactive
@@ -456,7 +462,7 @@ class Entrepot extends CommonObject
 			return -1;
 		}
 
-		$sql  = "SELECT rowid, entity, fk_parent, fk_project, ref as label, description, statut, lieu, address, zip, town, fk_pays as country_id, phone, fax,";
+		$sql  = "SELECT rowid, entity, fk_parent, fk_project, ref as label, description, statut, lieu, address, zip, town, fk_pays as country_id, phone, fax,warehouse_rebut";
 		$sql .= " model_pdf, import_key";
 		$sql .= " FROM ".$this->db->prefix()."entrepot";
 		if ($id) {
@@ -522,7 +528,7 @@ class Entrepot extends CommonObject
 	 */
 	public function info($id)
 	{
-		$sql = "SELECT e.rowid, e.datec, e.tms as datem, e.fk_user_author";
+		$sql = "SELECT e.rowid, e.datec, e.tms as datem, e.fk_user_author,e.warehouse_rebut";
 		$sql .= " FROM ".$this->db->prefix()."entrepot as e";
 		$sql .= " WHERE e.rowid = ".((int) $id);
 
@@ -537,6 +543,7 @@ class Entrepot extends CommonObject
 				$this->user_creation_id = $obj->fk_user_author;
 				$this->date_creation     = $this->db->jdate($obj->datec);
 				$this->date_modification = empty($obj->datem) ? '' : $this->db->jdate($obj->datem);
+				$this->warehouse_rebut = $obj->warehouse_rebut;
 			}
 
 			$this->db->free($result);
@@ -546,7 +553,30 @@ class Entrepot extends CommonObject
 	}
 
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+    /**
+     * 	Load warehouse rebut data
+     *
+     *  @param	int		$id      warehouse id
+     *  @return	void
+     */
+    public function getrebut($id)
+    {
+        $sql = "SELECT e.warehouse_rebut";
+        $sql .= " FROM ".$this->db->prefix()."entrepot as e";
+        $sql .= " WHERE e.rowid = ".((int) $id);
+
+        $result = $this->db->query($sql);
+        if ($result) {
+            $obj = $this->db->fetch_object($result);
+            return $obj->warehouse_rebut;
+        } else {
+            dol_print_error($this->db);
+        }
+    }
+
+
+
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return list of all warehouses
 	 *

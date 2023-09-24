@@ -65,6 +65,9 @@ print '<div class="fichecenter"><div class="fichethirdleft">';
 if ($conf->use_javascript_ajax) {
 	$sql = "SELECT COUNT(t.rowid) as nb, status";
 	$sql .= " FROM ".MAIN_DB_PREFIX."mrp_mo as t";
+    if(!$user->admin){
+        $sql .= " WHERE t.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+    }
 	$sql .= " GROUP BY t.status";
 	$sql .= " ORDER BY t.status ASC";
 	$resql = $db->query($sql);
@@ -159,6 +162,9 @@ $max = 5;
 $sql = "SELECT a.rowid, a.status, a.ref, a.tms as datem, a.status, a.fk_product";
 $sql .= " FROM ".MAIN_DB_PREFIX."bom_bom as a";
 $sql .= " WHERE a.entity IN (".getEntity('bom').")";
+if(!$user->admin){
+    $sql .= " AND a.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+}
 $sql .= $db->order("a.tms", "DESC");
 $sql .= $db->plimit($max, 0);
 
@@ -208,6 +214,9 @@ $max = 5;
 $sql = "SELECT a.rowid, a.status, a.ref, a.tms as datem, a.status";
 $sql .= " FROM ".MAIN_DB_PREFIX."mrp_mo as a";
 $sql .= " WHERE a.entity IN (".getEntity('mo').")";
+if(!$user->admin){
+    $sql .= " AND a.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+}
 $sql .= $db->order("a.tms", "DESC");
 $sql .= $db->plimit($max, 0);
 

@@ -134,7 +134,7 @@ $helpurl = 'EN:Module_Stocks_En|FR:Module_Stock|ES:M&oacute;dulo_Stocks';
 $form = new Form($db);
 $htmlother = new FormOther($db);
 
-$sql = 'SELECT p.rowid, p.ref, p.label, p.barcode, p.price, p.price_ttc, p.price_base_type, p.entity,';
+$sql = 'SELECT p.rowid,s.fk_entrepot, p.ref, p.label, p.barcode, p.price, p.price_ttc, p.price_base_type, p.entity,';
 $sql .= ' p.fk_product_type, p.tms as datem,';
 $sql .= ' p.duration, p.tosell as statut, p.tobuy, p.seuil_stock_alerte, p.desiredstock,';
 $sql .= ' SUM(s.reel) as stock_physique';
@@ -204,7 +204,7 @@ if ($fourn_id > 0) {
 $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= $hookmanager->resPrint;
-$sql .= " GROUP BY p.rowid, p.ref, p.label, p.barcode, p.price, p.price_ttc, p.price_base_type, p.entity,";
+$sql .= " GROUP BY p.rowid,s.fk_entrepot, p.ref, p.label, p.barcode, p.price, p.price_ttc, p.price_base_type, p.entity,";
 $sql .= " p.fk_product_type, p.tms, p.duration, p.tosell, p.tobuy, p.seuil_stock_alerte, p.desiredstock";
 // Add fields from hooks
 $parameters = array();
@@ -240,8 +240,8 @@ if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
 		$offset = 0;
 	}
 }
-
-$sql .= $db->plimit($limit + 1, $offset);
+$cpt = $user->admin?$limit:$nbtotalofrecords;
+$sql .= $db->plimit($cpt + 1, $offset);
 
 $resql = $db->query($sql);
 if ($resql) {
@@ -447,89 +447,93 @@ if ($resql) {
 		print_liste_field_titre('');
 	}
 	print "</tr>\n";
-
-	while ($i < min($num, $limit)) {
+    $totaux = $user->admin?min($num, $limit):$cpt;
+    $warehouse_rebut = new Entrepot($db);
+    $id_warehouse = $warehouse_rebut->getrebut($user->fk_warehouse);
+    while ($i < $totaux) {
 		$objp = $db->fetch_object($resql);
 
-		$product = new Product($db);
-		$product->fetch($objp->rowid);
-		$product->load_stock();
+        if($user->admin || $user->fk_warehouse==$objp->fk_entrepot || $id_warehouse==$objp->fk_entrepot) {
+            $product = new Product($db);
+            $product->fetch($objp->rowid);
+            $product->load_stock();
 
-		print '<tr>';
-		// Action column
-		if (!empty($conf->global->MAIN_CHECKBOX_LEFT_COLUMN)) {
-			print '<td></td>';
-		}
-		print '<td class="nowrap">';
-		print $product->getNomUrl(1, '', 16);
-		//if ($objp->stock_theorique < $objp->seuil_stock_alerte) print ' '.img_warning($langs->trans("StockTooLow"));
-		print '</td>';
-		print '<td class="tdoverflowmax150" title="'.dol_escape_htmltag($product->label).'">'.dol_escape_htmltag($product->label).'</td>';
+            print '<tr>';
+            // Action column
+            if (!empty($conf->global->MAIN_CHECKBOX_LEFT_COLUMN)) {
+                print '<td></td>';
+            }
+            print '<td class="nowrap">';
+            print $product->getNomUrl(1, '', 16);
+            //if ($objp->stock_theorique < $objp->seuil_stock_alerte) print ' '.img_warning($langs->trans("StockTooLow"));
+            print '</td>';
+            print '<td class="tdoverflowmax150" title="' . dol_escape_htmltag($product->label) . '">' . dol_escape_htmltag($product->label) . '</td>';
 
-		if (isModEnabled("service") && $type == 1) {
-			print '<td class="center">';
-			if (preg_match('/([0-9]+)y/i', $objp->duration, $regs)) {
-				print $regs[1].' '.$langs->trans("DurationYear");
-			} elseif (preg_match('/([0-9]+)m/i', $objp->duration, $regs)) {
-				print $regs[1].' '.$langs->trans("DurationMonth");
-			} elseif (preg_match('/([0-9]+)d/i', $objp->duration, $regs)) {
-				print $regs[1].' '.$langs->trans("DurationDay");
-			} else {
-				print $objp->duration;
-			}
-			print '</td>';
-		}
-		//print '<td class="right">'.$objp->stock_theorique.'</td>';
-		print '<td class="right">'.$objp->seuil_stock_alerte.'</td>';
-		print '<td class="right">'.$objp->desiredstock.'</td>';
-		// Real stock
-		print '<td class="right">';
-		if ($objp->seuil_stock_alerte != '' && ($objp->stock_physique < $objp->seuil_stock_alerte)) {
-			print img_warning($langs->trans("StockTooLow")).' ';
-		}
-		print price(price2num($objp->stock_physique, 'MS'), 0, $langs, 1, 0);
-		print '</td>';
+            if (isModEnabled("service") && $type == 1) {
+                print '<td class="center">';
+                if (preg_match('/([0-9]+)y/i', $objp->duration, $regs)) {
+                    print $regs[1] . ' ' . $langs->trans("DurationYear");
+                } elseif (preg_match('/([0-9]+)m/i', $objp->duration, $regs)) {
+                    print $regs[1] . ' ' . $langs->trans("DurationMonth");
+                } elseif (preg_match('/([0-9]+)d/i', $objp->duration, $regs)) {
+                    print $regs[1] . ' ' . $langs->trans("DurationDay");
+                } else {
+                    print $objp->duration;
+                }
+                print '</td>';
+            }
+            //print '<td class="right">'.$objp->stock_theorique.'</td>';
+            print '<td class="right">' . $objp->seuil_stock_alerte . '</td>';
+            print '<td class="right">' . $objp->desiredstock . '</td>';
+            // Real stock
+            print '<td class="right">';
+            if ($objp->seuil_stock_alerte != '' && ($objp->stock_physique < $objp->seuil_stock_alerte)) {
+                print img_warning($langs->trans("StockTooLow")) . ' ';
+            }
+            print price(price2num($objp->stock_physique, 'MS'), 0, $langs, 1, 0);
+            print '</td>';
 
-		// Details per warehouse
-		if (!empty($conf->global->STOCK_DETAIL_ON_WAREHOUSE)) {	// TODO This should be moved into the selection of fields on page product/list (page product/stock will be removed and replaced with product/list with its own context)
-			if ($nb_warehouse > 1) {
-				foreach ($warehouses_list as &$wh) {
-					print '<td class="right">';
-					print price(empty($product->stock_warehouse[$wh['id']]->real) ? 0 : price2num($product->stock_warehouse[$wh['id']]->real, 'MS'), 0, $langs, 1, 0);
-					print '</td>';
-				}
-			}
-		}
+            // Details per warehouse
+            if (!empty($conf->global->STOCK_DETAIL_ON_WAREHOUSE)) {    // TODO This should be moved into the selection of fields on page product/list (page product/stock will be removed and replaced with product/list with its own context)
+                if ($nb_warehouse > 1) {
+                    foreach ($warehouses_list as &$wh) {
+                        print '<td class="right">';
+                        print price(empty($product->stock_warehouse[$wh['id']]->real) ? 0 : price2num($product->stock_warehouse[$wh['id']]->real, 'MS'), 0, $langs, 1, 0);
+                        print '</td>';
+                    }
+                }
+            }
 
-		// Virtual stock
-		if ($virtualdiffersfromphysical) {
-			print '<td class="right">';
-			if ($objp->seuil_stock_alerte != '' && ($product->stock_theorique < (float) $objp->seuil_stock_alerte)) {
-				print img_warning($langs->trans("StockTooLow")).' ';
-			}
-			print price(price2num($product->stock_theorique, 'MS'), 0, $langs, 1, 0);
-			print '</td>';
-		}
-		// Units
-		if (!empty($conf->global->PRODUCT_USE_UNITS)) {
-			print '<td class="left">'.$objp->unit_short.'</td>';
-		}
-		print '<td class="center nowraponall">';
-		print img_picto($langs->trans("StockMovement"), 'movement', 'class="pictofixedwidth"');
-		print '<a href="'.DOL_URL_ROOT.'/product/stock/movement_list.php?idproduct='.$product->id.'">'.$langs->trans("Movements").'</a>';
-		print '</td>';
-		print '<td class="right nowrap">'.$product->LibStatut($objp->statut, 5, 0).'</td>';
-		print '<td class="right nowrap">'.$product->LibStatut($objp->tobuy, 5, 1).'</td>';
-		// Fields from hook
-		$parameters = array('obj'=>$objp);
-		$reshook = $hookmanager->executeHooks('printFieldListValue', $parameters, $product); // Note that $action and $object may have been modified by hook
-		print $hookmanager->resPrint;
-		// Action column
-		if (empty($conf->global->MAIN_CHECKBOX_LEFT_COLUMN)) {
-			print '<td></td>';
-		}
+            // Virtual stock
+            if ($virtualdiffersfromphysical) {
+                print '<td class="right">';
+                if ($objp->seuil_stock_alerte != '' && ($product->stock_theorique < (float)$objp->seuil_stock_alerte)) {
+                    print img_warning($langs->trans("StockTooLow")) . ' ';
+                }
+                print price(price2num($product->stock_theorique, 'MS'), 0, $langs, 1, 0);
+                print '</td>';
+            }
+            // Units
+            if (!empty($conf->global->PRODUCT_USE_UNITS)) {
+                print '<td class="left">' . $objp->unit_short . '</td>';
+            }
+            print '<td class="center nowraponall">';
+            print img_picto($langs->trans("StockMovement"), 'movement', 'class="pictofixedwidth"');
+            print '<a href="' . DOL_URL_ROOT . '/product/stock/movement_list.php?idproduct=' . $product->id . '">' . $langs->trans("Movements") . '</a>';
+            print '</td>';
+            print '<td class="right nowrap">' . $product->LibStatut($objp->statut, 5, 0) . '</td>';
+            print '<td class="right nowrap">' . $product->LibStatut($objp->tobuy, 5, 1) . '</td>';
+            // Fields from hook
+            $parameters = array('obj' => $objp);
+            $reshook = $hookmanager->executeHooks('printFieldListValue', $parameters, $product); // Note that $action and $object may have been modified by hook
+            print $hookmanager->resPrint;
+            // Action column
+            if (empty($conf->global->MAIN_CHECKBOX_LEFT_COLUMN)) {
+                print '<td></td>';
+            }
 
-		print "</tr>\n";
+            print "</tr>\n";
+        }
 		$i++;
 	}
 

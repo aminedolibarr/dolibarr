@@ -139,7 +139,11 @@ if ((isModEnabled("product") || isModEnabled("service")) && ($user->hasRight("pr
 
 	$sql = "SELECT COUNT(p.rowid) as total, p.fk_product_type, p.tosell, p.tobuy";
 	$sql .= " FROM ".MAIN_DB_PREFIX."product as p";
-	$sql .= ' WHERE p.entity IN ('.getEntity($product_static->element, 1).')';
+    $sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product_stock as s ON s.fk_product=p.rowid";
+    $sql .= ' WHERE p.entity IN ('.getEntity($product_static->element, 1).')';
+    if(!$user->admin){
+        $sql .= " AND s.fk_entrepot IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+    }
 	// Add where from hooks
 	$parameters = array();
 	$reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $product_static); // Note that $action and $object may have been modified by hook
@@ -290,7 +294,11 @@ if ((isModEnabled("product") || isModEnabled("service")) && ($user->hasRight("pr
 	$sql .= " p.entity,";
 	$sql .= " p.tms as datem";
 	$sql .= " FROM ".MAIN_DB_PREFIX."product as p";
-	$sql .= " WHERE p.entity IN (".getEntity($product_static->element, 1).")";
+    $sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product_stock as s ON s.fk_product=p.rowid";
+    $sql .= " WHERE p.entity IN (".getEntity($product_static->element, 1).")";
+    if(!$user->admin){
+        $sql .= " AND s.fk_entrepot IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+    }
 	if ($type != '') {
 		$sql .= " AND p.fk_product_type = ".((int) $type);
 	}

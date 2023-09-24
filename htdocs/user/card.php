@@ -311,6 +311,11 @@ if (empty($reshook)) {
 
 			$object->fk_warehouse = GETPOST('fk_warehouse', 'int');
 
+            require_once DOL_DOCUMENT_ROOT.'/product/stock/class/entrepot.class.php';
+
+            $entrepot = new Entrepot($db);
+			$object->warehouse_rebut = $entrepot->getrebut(GETPOST('fk_warehouse', 'int'));
+
 			$object->lang = GETPOST('default_lang', 'aZ09');
 
 			// Fill array 'array_options' with data from add form

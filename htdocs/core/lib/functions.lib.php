@@ -5412,7 +5412,7 @@ function load_fiche_titre($titre, $morehtmlright = '', $picto = 'generic', $pict
  */
 function print_barre_liste($titre, $page, $file, $options = '', $sortfield = '', $sortorder = '', $morehtmlcenter = '', $num = -1, $totalnboflines = '', $picto = 'generic', $pictoisfullpath = 0, $morehtmlright = '', $morecss = '', $limit = -1, $hideselectlimit = 0, $hidenavigation = 0, $pagenavastextinput = 0, $morehtmlrightbeforearrow = '')
 {
-	global $conf, $langs;
+	global $conf, $langs,$user;
 
 	$savlimit = $limit;
 	$savtotalnboflines = $totalnboflines;
@@ -5445,7 +5445,7 @@ function print_barre_liste($titre, $page, $file, $options = '', $sortfield = '',
 	}
 	print '<td class="nobordernopadding valignmiddle col-title">';
 	print '<div class="titre inline-block">'.$titre;
-	if (!empty($titre) && $savtotalnboflines >= 0 && (string) $savtotalnboflines != '') {
+	if (!empty($titre) && $savtotalnboflines >= 0 && (string) $savtotalnboflines != '' && $user->admin) {
 		print '<span class="opacitymedium colorblack paddingleft">('.$totalnboflines.')</span>';
 	}
 	print '</div></td>';
@@ -5455,87 +5455,89 @@ function print_barre_liste($titre, $page, $file, $options = '', $sortfield = '',
 		print '<td class="nobordernopadding center valignmiddle col-center">'.$morehtmlcenter.'</td>';
 	}
 
-	// Right
-	print '<td class="nobordernopadding valignmiddle right col-right">';
-	print '<input type="hidden" name="pageplusoneold" value="'.((int) $page + 1).'">';
-	if ($sortfield) {
-		$options .= "&sortfield=".urlencode($sortfield);
-	}
-	if ($sortorder) {
-		$options .= "&sortorder=".urlencode($sortorder);
-	}
-	// Show navigation bar
-	$pagelist = '';
-	if ($savlimit != 0 && ($page > 0 || $num > $limit)) {
-		if ($totalnboflines) {	// If we know total nb of lines
-			// Define nb of extra page links before and after selected page + ... + first or last
-			$maxnbofpage = (empty($conf->dol_optimize_smallscreen) ? 4 : 0);
+    if($user->admin) {
+        // Right
+        print '<td class="nobordernopadding valignmiddle right col-right">';
+        print '<input type="hidden" name="pageplusoneold" value="' . ((int)$page + 1) . '">';
+        if ($sortfield) {
+            $options .= "&sortfield=" . urlencode($sortfield);
+        }
+        if ($sortorder) {
+            $options .= "&sortorder=" . urlencode($sortorder);
+        }
+        // Show navigation bar
+        $pagelist = '';
+        if ($savlimit != 0 && ($page > 0 || $num > $limit)) {
+            if ($totalnboflines) {    // If we know total nb of lines
+                // Define nb of extra page links before and after selected page + ... + first or last
+                $maxnbofpage = (empty($conf->dol_optimize_smallscreen) ? 4 : 0);
 
-			if ($limit > 0) {
-				$nbpages = ceil($totalnboflines / $limit);
-			} else {
-				$nbpages = 1;
-			}
-			$cpt = ($page - $maxnbofpage);
-			if ($cpt < 0) {
-				$cpt = 0;
-			}
+                if ($limit > 0) {
+                    $nbpages = ceil($totalnboflines / $limit);
+                } else {
+                    $nbpages = 1;
+                }
+                $cpt = ($page - $maxnbofpage);
+                if ($cpt < 0) {
+                    $cpt = 0;
+                }
 
-			if ($cpt >= 1) {
-				if (empty($pagenavastextinput)) {
-					$pagelist .= '<li class="pagination"><a href="'.$file.'?page=0'.$options.'">1</a></li>';
-					if ($cpt > 2) {
-						$pagelist .= '<li class="pagination"><span class="inactive">...</span></li>';
-					} elseif ($cpt == 2) {
-						$pagelist .= '<li class="pagination"><a href="'.$file.'?page=1'.$options.'">2</a></li>';
-					}
-				}
-			}
+                if ($cpt >= 1) {
+                    if (empty($pagenavastextinput)) {
+                        $pagelist .= '<li class="pagination"><a href="' . $file . '?page=0' . $options . '">1</a></li>';
+                        if ($cpt > 2) {
+                            $pagelist .= '<li class="pagination"><span class="inactive">...</span></li>';
+                        } elseif ($cpt == 2) {
+                            $pagelist .= '<li class="pagination"><a href="' . $file . '?page=1' . $options . '">2</a></li>';
+                        }
+                    }
+                }
 
-			do {
-				if ($pagenavastextinput) {
-					if ($cpt == $page) {
-						$pagelist .= '<li class="pagination"><input type="text" class="width25 center pageplusone" name="pageplusone" value="'.($page + 1).'"></li>';
-						$pagelist .= '/';
-					}
-				} else {
-					if ($cpt == $page) {
-						$pagelist .= '<li class="pagination"><span class="active">'.($page + 1).'</span></li>';
-					} else {
-						$pagelist .= '<li class="pagination"><a href="'.$file.'?page='.$cpt.$options.'">'.($cpt + 1).'</a></li>';
-					}
-				}
-				$cpt++;
-			} while ($cpt < $nbpages && $cpt <= ($page + $maxnbofpage));
+                do {
+                    if ($pagenavastextinput) {
+                        if ($cpt == $page) {
+                            $pagelist .= '<li class="pagination"><input type="text" class="width25 center pageplusone" name="pageplusone" value="' . ($page + 1) . '"></li>';
+                            $pagelist .= '/';
+                        }
+                    } else {
+                        if ($cpt == $page) {
+                            $pagelist .= '<li class="pagination"><span class="active">' . ($page + 1) . '</span></li>';
+                        } else {
+                            $pagelist .= '<li class="pagination"><a href="' . $file . '?page=' . $cpt . $options . '">' . ($cpt + 1) . '</a></li>';
+                        }
+                    }
+                    $cpt++;
+                } while ($cpt < $nbpages && $cpt <= ($page + $maxnbofpage));
 
-			if (empty($pagenavastextinput)) {
-				if ($cpt < $nbpages) {
-					if ($cpt < $nbpages - 2) {
-						$pagelist .= '<li class="pagination"><span class="inactive">...</span></li>';
-					} elseif ($cpt == $nbpages - 2) {
-						$pagelist .= '<li class="pagination"><a href="'.$file.'?page='.($nbpages - 2).$options.'">'.($nbpages - 1).'</a></li>';
-					}
-					$pagelist .= '<li class="pagination"><a href="'.$file.'?page='.($nbpages - 1).$options.'">'.$nbpages.'</a></li>';
-				}
-			} else {
-				//var_dump($page.' '.$cpt.' '.$nbpages);
-				$pagelist .= '<li class="pagination paginationlastpage"><a href="'.$file.'?page='.($nbpages - 1).$options.'">'.$nbpages.'</a></li>';
-			}
-		} else {
-			$pagelist .= '<li class="pagination"><span class="active">'.($page + 1)."</li>";
-		}
-	}
+                if (empty($pagenavastextinput)) {
+                    if ($cpt < $nbpages) {
+                        if ($cpt < $nbpages - 2) {
+                            $pagelist .= '<li class="pagination"><span class="inactive">...</span></li>';
+                        } elseif ($cpt == $nbpages - 2) {
+                            $pagelist .= '<li class="pagination"><a href="' . $file . '?page=' . ($nbpages - 2) . $options . '">' . ($nbpages - 1) . '</a></li>';
+                        }
+                        $pagelist .= '<li class="pagination"><a href="' . $file . '?page=' . ($nbpages - 1) . $options . '">' . $nbpages . '</a></li>';
+                    }
+                } else {
+                    //var_dump($page.' '.$cpt.' '.$nbpages);
+                    $pagelist .= '<li class="pagination paginationlastpage"><a href="' . $file . '?page=' . ($nbpages - 1) . $options . '">' . $nbpages . '</a></li>';
+                }
+            } else {
+                $pagelist .= '<li class="pagination"><span class="active">' . ($page + 1) . "</li>";
+            }
+        }
 
-	if ($savlimit || $morehtmlright || $morehtmlrightbeforearrow) {
-		print_fleche_navigation($page, $file, $options, $nextpage, $pagelist, $morehtmlright, $savlimit, $totalnboflines, $hideselectlimit, $morehtmlrightbeforearrow); // output the div and ul for previous/last completed with page numbers into $pagelist
-	}
+        if ($savlimit || $morehtmlright || $morehtmlrightbeforearrow) {
+            print_fleche_navigation($page, $file, $options, $nextpage, $pagelist, $morehtmlright, $savlimit, $totalnboflines, $hideselectlimit, $morehtmlrightbeforearrow); // output the div and ul for previous/last completed with page numbers into $pagelist
+        }
 
-	// js to autoselect page field on focus
-	if ($pagenavastextinput) {
-		print ajax_autoselect('.pageplusone');
-	}
+        // js to autoselect page field on focus
+        if ($pagenavastextinput) {
+            print ajax_autoselect('.pageplusone');
+        }
 
-	print '</td>';
+        print '</td>';
+    }
 
 	print '</tr></table>'."\n";
 	print "<!-- End title -->\n\n";

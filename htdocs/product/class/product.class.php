@@ -6274,6 +6274,33 @@ class Product extends CommonObject
 		}
 	}
 
+    /**
+     * 	Load warehouse rebut data
+     *
+     *  @param	int		$id1      warehouse id
+     *  @param	int		$id2      warehouse_rebut id
+     *  @return	array
+     */
+    public function getProductByEntrepot($id1,$id2)
+    {
+        $sql = "SELECT p.fk_product";
+        $sql .= " FROM ".$this->db->prefix()."product_stock as p";
+        $sql .= " WHERE p.fk_entrepot IN (".$id1.",".$id2.")";
+        $items = array();
+        $i=0;
+        $result = $this->db->query($sql);
+        if ($result) {
+            while ($i < $this->db->num_rows($result)) {
+                $obj = $this->db->fetch_object($result);
+                array_push($items, $obj->fk_product);
+                $i++;
+            }
+        } else {
+            dol_print_error($this->db);
+        }
+        return $items;
+    }
+
 
 	/**
 	 * Return the duration in Hours of a service base on duration fields

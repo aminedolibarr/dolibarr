@@ -94,12 +94,16 @@ class box_produits extends ModeleBoxes
 			$sql .= ", p.accountancy_code_buy_export";
 			$sql .= ', p.barcode';
 			$sql .= " FROM ".MAIN_DB_PREFIX."product as p";
+			$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product_stock as s ON s.fk_product=p.rowid";
 			$sql .= ' WHERE p.entity IN ('.getEntity($productstatic->element).')';
 			if (empty($user->rights->produit->lire)) {
 				$sql .= ' AND p.fk_product_type != 0';
 			}
 			if (empty($user->rights->service->lire)) {
 				$sql .= ' AND p.fk_product_type != 1';
+			}
+            if (!$user->admin) {
+                $sql .= " AND s.fk_entrepot IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
 			}
 			// Add where from hooks
 			if (is_object($hookmanager)) {

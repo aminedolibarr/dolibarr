@@ -41,7 +41,6 @@ if (!defined('NOREQUIREAJAX')) {
 
 // Load Dolibarr environment
 require '../../main.inc.php'; // Load $user and permissions
-
 $idbom = GETPOST('idbom', 'alpha');
 //$action = GETPOST('action', 'aZ09');
 
@@ -51,11 +50,11 @@ $idbom = GETPOST('idbom', 'alpha');
  */
 
 top_httphead('application/json');
-
+global $db;
 if (isset($_POST['id'])) {
     ob_start();
 
-    global $db;
+
     $id = $_POST['id'];
     $qte = $_POST['qte'];
 
@@ -65,6 +64,25 @@ if (isset($_POST['id'])) {
 
 
     echo "Quantity updated successfully";
+
+
+}
+
+if (isset($_POST['bom'])) {
+    ob_start();
+
+    $id = $_POST['bom'];
+    $sql = "SELECT b.fk_warehouse";
+    $sql .= " FROM ".$db->prefix()."bom_bom as b";
+    $sql .= " WHERE b.rowid = ".((int) $id);
+    $result = $db->query($sql);
+
+    if ($result) {
+        $obj = $db->fetch_object($result);
+        echo $obj->fk_warehouse;
+    } else {
+        dol_print_error($db);
+    }
 
 
 }

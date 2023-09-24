@@ -228,6 +228,8 @@ $reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $obje
 $sql .= preg_replace('/^,/', '', $hookmanager->resPrint);
 $sql = preg_replace('/,\s*$/', '', $sql);
 $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
+$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product_stock s ON t.fk_product=s.fk_product";
+
 if (isset($extrafields->attributes[$object->table_element]['label']) && is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) {
 	$sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 }
@@ -239,6 +241,9 @@ if ($object->ismultientitymanaged == 1) {
 	$sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 } else {
 	$sql .= " WHERE 1 = 1";
+}
+if(!$user->admin){
+    $sql .= " AND s.fk_entrepot IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
 }
 foreach ($search as $key => $val) {
 	if (array_key_exists($key, $object->fields)) {

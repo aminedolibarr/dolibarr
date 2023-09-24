@@ -96,9 +96,13 @@ class box_boms extends ModeleBoxes
 			$sql .= ", c.ref";
 			$sql .= ", c.status";
 			$sql .= ", c.fk_user_valid";
+			$sql .= ", c.fk_warehouse";
 			$sql .= " FROM ".MAIN_DB_PREFIX."product as p";
 			$sql .= ", ".MAIN_DB_PREFIX."bom_bom as c";
 			$sql .= " WHERE c.fk_product = p.rowid";
+            if(!$user->admin){
+                $sql .= " AND c.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+            }
 			$sql .= " AND c.entity = ".$conf->entity;
 			$sql .= " ORDER BY c.tms DESC, c.ref DESC";
 			$sql .= $this->db->plimit($max, 0);
@@ -110,51 +114,52 @@ class box_boms extends ModeleBoxes
 				$line = 0;
 
 				while ($line < $num) {
-					$objp = $this->db->fetch_object($result);
-					$datem = $this->db->jdate($objp->tms);
+                    $objp = $this->db->fetch_object($result);
+                    $datem = $this->db->jdate($objp->tms);
+                    echo $objp->fk_warehouse;
+                        $bomstatic->id = $objp->rowid;
+                        $bomstatic->ref = $objp->ref;
+                        $bomstatic->status = $objp->status;
 
-					$bomstatic->id = $objp->rowid;
-					$bomstatic->ref = $objp->ref;
-					$bomstatic->status = $objp->status;
+                        $productstatic->id = $objp->productid;
+                        $productstatic->ref = $objp->product_ref;
+                        $productstatic->status = $objp->tosell;
+                        $productstatic->status_buy = $objp->tobuy;
+                        $productstatic->status_batch = $objp->tobatch;
 
-					$productstatic->id = $objp->productid;
-					$productstatic->ref = $objp->product_ref;
-					$productstatic->status = $objp->tosell;
-					$productstatic->status_buy = $objp->tobuy;
-					$productstatic->status_batch = $objp->tobatch;
+                        $this->info_box_contents[$line][] = array(
+                            'td' => 'class="nowraponall"',
+                            'text' => $bomstatic->getNomUrl(1),
+                            'asis' => 1,
+                        );
 
-					$this->info_box_contents[$line][] = array(
-						'td' => 'class="nowraponall"',
-						'text' => $bomstatic->getNomUrl(1),
-						'asis' => 1,
-					);
+                        $this->info_box_contents[$line][] = array(
+                            'td' => 'class="tdoverflowmax150 maxwidth150onsmartphone"',
+                            'text' => $productstatic->getNomUrl(1),
+                            'asis' => 1,
+                        );
 
-					$this->info_box_contents[$line][] = array(
-						'td' => 'class="tdoverflowmax150 maxwidth150onsmartphone"',
-						'text' => $productstatic->getNomUrl(1),
-						'asis' => 1,
-					);
+                        if (!empty($conf->global->BOM_BOX_LAST_BOMS_SHOW_VALIDATE_USER)) {
+                            if ($objp->fk_user_valid > 0) {
+                                $userstatic->fetch($objp->fk_user_valid);
+                            }
+                            $this->info_box_contents[$line][] = array(
+                                'td' => 'class="right"',
+                                'text' => (($objp->fk_user_valid > 0) ? $userstatic->getNomUrl(1) : ''),
+                                'asis' => 1,
+                            );
+                        }
 
-					if (!empty($conf->global->BOM_BOX_LAST_BOMS_SHOW_VALIDATE_USER)) {
-						if ($objp->fk_user_valid > 0) {
-							$userstatic->fetch($objp->fk_user_valid);
-						}
-						$this->info_box_contents[$line][] = array(
-							'td' => 'class="right"',
-							'text' => (($objp->fk_user_valid > 0) ? $userstatic->getNomUrl(1) : ''),
-							'asis' => 1,
-						);
-					}
+                        $this->info_box_contents[$line][] = array(
+                            'td' => 'class="center nowraponall" title="' . dol_escape_htmltag($langs->trans("DateModification") . ': ' . dol_print_date($datem, 'dayhour', 'tzuserrel')) . '"',
+                            'text' => dol_print_date($datem, 'day', 'tzuserrel'),
+                        );
 
-					$this->info_box_contents[$line][] = array(
-						'td' => 'class="center nowraponall" title="'.dol_escape_htmltag($langs->trans("DateModification").': '.dol_print_date($datem, 'dayhour', 'tzuserrel')).'"',
-						'text' => dol_print_date($datem, 'day', 'tzuserrel'),
-					);
+                        $this->info_box_contents[$line][] = array(
+                            'td' => 'class="right" width="18"',
+                            'text' => $bomstatic->LibStatut($objp->status, 3),
+                        );
 
-					$this->info_box_contents[$line][] = array(
-						'td' => 'class="right" width="18"',
-						'text' => $bomstatic->LibStatut($objp->status, 3),
-					);
 
 					$line++;
 				}

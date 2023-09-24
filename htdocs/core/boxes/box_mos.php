@@ -98,6 +98,9 @@ class box_mos extends ModeleBoxes
 			$sql .= " FROM ".MAIN_DB_PREFIX."product as p";
 			$sql .= ", ".MAIN_DB_PREFIX."mrp_mo as c";
 			$sql .= " WHERE c.fk_product = p.rowid";
+            if(!$user->admin){
+                $sql .= " AND c.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+            }
 			$sql .= " AND c.entity = ".$conf->entity;
 			$sql .= " ORDER BY c.tms DESC, c.ref DESC";
 			$sql .= $this->db->plimit($max, 0);
@@ -128,7 +131,7 @@ class box_mos extends ModeleBoxes
 
 					$this->info_box_contents[$line][] = array(
 						'td' => 'class="tdoverflowmax150 maxwidth150onsmartphone"',
-						'text' => $productstatic->getNomUrl(1),
+						'text' => $user->admin?$productstatic->getNomUrl(1):$productstatic->ref,
 						'asis' => 1,
 					);
 

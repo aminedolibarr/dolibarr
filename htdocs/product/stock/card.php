@@ -144,7 +144,6 @@ if (empty($reshook)) {
 		$object->country_id = GETPOST("country_id");
 		$object->phone = (string) GETPOST("phone", "alpha");
 		$object->fax = (string) GETPOST("fax", "alpha");
-
 		if (!empty($object->label)) {
 			// Fill array 'array_options' with data from add form
 			$ret = $extrafields->setOptionalsFromPost(null, $object);
@@ -157,9 +156,33 @@ if (empty($reshook)) {
 				$id = $object->create($user);
 				if ($id > 0) {
 					setEventMessages($langs->trans("RecordSaved"), null, 'mesgs');
-
+                    echo "id => ".$id;
 					$categories = GETPOST('categories', 'array');
 					$object->setCategories($categories);
+                    $rebut = new Entrepot($db);
+                    $rebut->ref = (string) GETPOST("ref", "alpha")." REBUT";
+                    $rebut->fk_parent = (int) GETPOST("fk_parent", "int");
+                    $rebut->fk_project = GETPOST('projectid', 'int');
+                    $rebut->label = (string) GETPOST("libelle", "alpha")." REBUT";
+                    $rebut->description = (string) GETPOST("desc", "alpha");
+                    $rebut->statut = GETPOST("statut", "int");
+                    $rebut->lieu = (string) GETPOST("lieu", "alpha")." REBUT";
+                    $rebut->address = (string) GETPOST("address", "alpha");
+                    $rebut->zip = (string) GETPOST("zipcode", "alpha");
+                    $rebut->town = (string) GETPOST("town", "alpha");
+                    $rebut->country_id = GETPOST("country_id");
+                    $rebut->phone = (string) GETPOST("phone", "alpha");
+                    $rebut->fax = (string) GETPOST("fax", "alpha");
+                    $id_rebut = $rebut->create($user);
+                    if($id_rebut<0){
+                        setEventMessages($rebut->error, $rebut->errors, 'errors');
+                    }
+                    //Update Warehouse parent add id rebut
+                    $updateWarehouse = "UPDATE `llx_entrepot` SET warehouse_rebut = $id_rebut WHERE rowid = $id";
+                    $updateWarehouse = $db->query($updateWarehouse);
+                    if(!$updateWarehouse){
+                        setEventMessages($rebut->error, $rebut->errors, 'errors');
+                    }
 					if (!empty($backtopage)) {
 						$backtopage = str_replace("__ID__", $id, $backtopage);
 						header("Location: ".$backtopage);
