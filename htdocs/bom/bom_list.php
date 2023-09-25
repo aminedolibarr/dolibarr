@@ -321,6 +321,9 @@ if ($object->ismultientitymanaged == 1) {
 } else {
 	$sql .= " WHERE 1 = 1";
 }
+if(!$user->admin){
+    $sql .= " AND t.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+}
 foreach ($search as $key => $val) {
 	if (array_key_exists($key, $object->fields)) {
 		if ($key == 'status' && $search[$key] == -1) {
