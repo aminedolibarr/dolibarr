@@ -111,7 +111,7 @@ foreach ($object->fields as $key => $val) {
         var userWarehouse = "<?php echo $userWarehouse; ?>"
         var idWarehouse = "<?php echo $id_warehouse; ?>"
         if(isAdmin==="0"){
-            $('#fk_bom option').each(function() {
+            /*$('#fk_bom option').each(function() {
                 let bomvalue = $(this).val();
                 if(bomvalue!=="-1"){
                     $.post("<?php echo DOL_URL_ROOT ?>/mrp/ajax/custom.php",{
@@ -125,7 +125,7 @@ foreach ($object->fields as $key => $val) {
                         }
                     });
                 }
-            });
+            });*/
             $('#fk_warehouse option').each(function() {
                 if ( $(this).val() !== userWarehouse && $(this).val() !== idWarehouse) {
                     $(this).remove();
