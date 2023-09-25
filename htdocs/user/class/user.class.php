@@ -1516,7 +1516,7 @@ class User extends CommonObject
 	 *  @param  int		$notrigger		1=do not execute triggers, 0 otherwise
 	 *  @return int			         	<0 if KO, id of created user if OK
 	 */
-	public function create($user, $notrigger = 0)
+	public function create($user, $notrigger = 0,$warehouse_id = 0)
 	{
 		global $conf, $langs;
 		global $mysoc;
@@ -1604,17 +1604,18 @@ class User extends CommonObject
 			}
 
 			if (!empty($conf->global->MAIN_DEFAULT_WAREHOUSE_USER) && !empty($conf->global->STOCK_USERSTOCK_AUTOCREATE)) {
-				require_once DOL_DOCUMENT_ROOT.'/product/stock/class/entrepot.class.php';
+				//require_once DOL_DOCUMENT_ROOT.'/product/stock/class/entrepot.class.php';
 				$langs->load("stocks");
-				$entrepot = new Entrepot($this->db);
+				/*$entrepot = new Entrepot($this->db);
 				$entrepot->label = $langs->trans("PersonalStock", $this->getFullName($langs));
 				$entrepot->libelle = $entrepot->label; // For backward compatibility
 				$entrepot->description = $langs->trans("ThisWarehouseIsPersonalStock", $this->getFullName($langs));
 				$entrepot->statut = 1;
 				$entrepot->country_id = $mysoc->country_id;
-				$warehouseid = $entrepot->create($user);
-
-				$this->fk_warehouse = $warehouseid;
+				$warehouseid = $entrepot->create($user);*/
+                if($warehouse_id!=0){
+                    $this->fk_warehouse = $warehouse_id;
+                }
 				$this->warehouse_rebut = $user->warehouse_rebut;
 			}
 

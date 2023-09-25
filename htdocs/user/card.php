@@ -345,7 +345,7 @@ if (empty($reshook)) {
 
 			$db->begin();
 
-			$id = $object->create($user);
+			$id = $object->create($user,1,$object->fk_warehouse);
 			if ($id > 0) {
 				$resPass = 0;
 				if (GETPOST('password', 'none')) {
