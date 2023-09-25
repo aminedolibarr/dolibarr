@@ -7891,6 +7891,9 @@ class Form
 					}
 				}
 			}
+            if(!$user->admin && $objecttmp->table_element=="bom_bom"){
+                $sql .= " AND t.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+            }
 			if ($searchkey != '') {
 				$sql .= natural_search(explode(',', $fieldstoshow), $searchkey);
 			}
