@@ -108,7 +108,6 @@ class BOM extends CommonObject
 		'qty' => array('type'=>'real', 'label'=>'Quantity', 'enabled'=>1, 'visible'=>1, 'default'=>1, 'position'=>55, 'notnull'=>1, 'isameasure'=>'1', 'css'=>'maxwidth50imp right'),
 		//'efficiency' => array('type'=>'real', 'label'=>'ManufacturingEfficiency', 'enabled'=>1, 'visible'=>-1, 'default'=>1, 'position'=>100, 'notnull'=>0, 'css'=>'maxwidth50imp', 'help'=>'ValueOfMeansLossForProductProduced'),
 		'duration' => array('type'=>'duration', 'label'=>'EstimatedDuration', 'enabled'=>1, 'visible'=>-1, 'position'=>101, 'notnull'=>-1, 'css'=>'maxwidth50imp', 'help'=>'EstimatedDurationDesc'),
-		'fk_warehouse' => array('type'=>'integer:Entrepot:product/stock/class/entrepot.class.php:0', 'label'=>'WarehouseForProduction', 'picto'=>'stock', 'enabled'=>1, 'visible'=>0, 'position'=>102, 'css'=>'maxwidth500', 'csslist'=>'tdoverflowmax100'),
 
 
         'note_public' => array('type'=>'html', 'label'=>'NotePublic', 'enabled'=>1, 'visible'=>-2, 'position'=>161, 'notnull'=>-1,),
@@ -122,7 +121,7 @@ class BOM extends CommonObject
 		'import_key' => array('type'=>'varchar(14)', 'label'=>'ImportId', 'enabled'=>1, 'visible'=>-2, 'position'=>1000, 'notnull'=>-1,),
 		'model_pdf' =>array('type'=>'varchar(255)', 'label'=>'Model pdf', 'enabled'=>1, 'visible'=>0, 'position'=>1010),
 		'status' => array('type'=>'integer', 'label'=>'Status', 'enabled'=>1, 'visible'=>2, 'position'=>1000, 'notnull'=>1, 'default'=>0, 'index'=>1, 'arrayofkeyval'=>array(0=>'Draft', 1=>'Enabled', 9=>'Disabled')),
-		'fk_rebutwarehouse' => array('type'=>'integer:Entrepot:product/stock/class/entrepot.class.php:0', 'label'=>'WarehouseForProduction', 'picto'=>'stock', 'enabled'=>1, 'visible'=>-1, 'position'=>102, 'css'=>'maxwidth500', 'csslist'=>'tdoverflowmax100'),
+		'fk_warehouse' => array('type'=>'integer:Entrepot:product/stock/class/entrepot.class.php:0', 'label'=>'WarehouseForProduction', 'picto'=>'stock', 'enabled'=>1, 'visible'=>-1, 'position'=>102, 'css'=>'maxwidth500', 'csslist'=>'tdoverflowmax100'),
 	);
 
 	/**
