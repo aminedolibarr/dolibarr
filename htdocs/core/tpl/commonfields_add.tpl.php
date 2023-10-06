@@ -30,6 +30,7 @@ if (empty($conf) || !is_object($conf)) {
 }
 
 ?>
+
 <!-- BEGIN PHP TEMPLATE commonfields_add.tpl.php -->
 <?php
 global $user,$db;
@@ -106,7 +107,6 @@ foreach ($object->fields as $key => $val) {
 <!-- END PHP TEMPLATE commonfields_add.tpl.php -->
 <script>
     jQuery(document).on('.valuefieldcreate select2:open', () => {
-        debugger;
         var isAdmin = "<?php echo $isAdmin; ?>"
         var userWarehouse = "<?php echo $userWarehouse; ?>"
         var idWarehouse = "<?php echo $id_warehouse; ?>"
@@ -127,17 +127,17 @@ foreach ($object->fields as $key => $val) {
                 }
             });*/
             $('#fk_warehouse option').each(function() {
-                if ( $(this).val() !== userWarehouse && $(this).val() !== idWarehouse) {
+                if ( $(this).val() !== userWarehouse) {
                     $(this).remove();
                 }
             });
             $('#fk_default_warehouse option').each(function() {
-                if ( $(this).val() !== userWarehouse && $(this).val() !== idWarehouse) {
+                if ( $(this).val() !== userWarehouse) {
                     $(this).remove();
                 }
             });
             $('#fk_rebutwarehouse option').each(function() {
-                if ( $(this).val() !== userWarehouse && $(this).val() !== idWarehouse) {
+                if ( $(this).val() !== userWarehouse) {
                     $(this).remove();
                 }
             });

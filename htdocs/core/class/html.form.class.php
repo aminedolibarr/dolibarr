@@ -7891,9 +7891,12 @@ class Form
 					}
 				}
 			}
-            if(!$user->admin && $objecttmp->table_element=="bom_bom"){
-                $sql .= " AND t.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+            if($objecttmp->table_element=="entrepot"){
+                $sql .= " AND t.warehouse_rebut is not null";
             }
+            /*if(!$user->admin && $objecttmp->table_element=="bom_bom"){
+                $sql .= " AND t.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+            }*/
 			if ($searchkey != '') {
 				$sql .= natural_search(explode(',', $fieldstoshow), $searchkey);
 			}

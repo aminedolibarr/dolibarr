@@ -111,9 +111,9 @@ class FormProduct
 				$sql .= " LEFT JOIN ".$this->db->prefix()."product_batch as pb on pb.fk_product_stock = ps.rowid AND pb.batch = '".$this->db->escape($batch)."'";
 			}
 		}
-		$sql .= " WHERE e.entity IN (".getEntity('stock').")";
+		$sql .= " WHERE e.entity IN (".getEntity('stock').") AND e.warehouse_rebut is not null";
         if(!$user->admin){
-            $sql .= " AND e.rowid IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+            $sql .= " AND e.rowid IN (".$user->fk_warehouse.")";
         }
 		if (count($warehouseStatus)) {
 			$sql .= " AND e.statut IN (".$this->db->sanitize(implode(',', $warehouseStatus)).")";

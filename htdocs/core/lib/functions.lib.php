@@ -5445,7 +5445,7 @@ function print_barre_liste($titre, $page, $file, $options = '', $sortfield = '',
 	}
 	print '<td class="nobordernopadding valignmiddle col-title">';
 	print '<div class="titre inline-block">'.$titre;
-	if (!empty($titre) && $savtotalnboflines >= 0 && (string) $savtotalnboflines != '' && $user->admin) {
+	if (!empty($titre) && $savtotalnboflines >= 0 && (string) $savtotalnboflines != '' ) {
 		print '<span class="opacitymedium colorblack paddingleft">('.$totalnboflines.')</span>';
 	}
 	print '</div></td>';
@@ -5455,7 +5455,7 @@ function print_barre_liste($titre, $page, $file, $options = '', $sortfield = '',
 		print '<td class="nobordernopadding center valignmiddle col-center">'.$morehtmlcenter.'</td>';
 	}
 
-    if($user->admin) {
+    //if($user->admin) {
         // Right
         print '<td class="nobordernopadding valignmiddle right col-right">';
         print '<input type="hidden" name="pageplusoneold" value="' . ((int)$page + 1) . '">';
@@ -5537,7 +5537,7 @@ function print_barre_liste($titre, $page, $file, $options = '', $sortfield = '',
         }
 
         print '</td>';
-    }
+    //}
 
 	print '</tr></table>'."\n";
 	print "<!-- End title -->\n\n";

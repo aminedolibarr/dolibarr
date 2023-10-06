@@ -274,6 +274,7 @@ class MouvementStock extends CommonObject
 
 		// Test if product require batch data. If yes, and there is not or values are not correct, we throw an error.
 		if (isModEnabled('productbatch') && $product->hasbatch() && !$skip_batch) {
+            $batch = rand();
 			if (empty($batch)) {
 				$langs->load("errors");
 				$this->errors[] = $langs->transnoentitiesnoconv("ErrorTryToMakeMoveOnProductRequiringBatchData", $product->ref);

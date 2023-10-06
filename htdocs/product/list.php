@@ -642,9 +642,8 @@ if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
 
 // Complete request and execute it with limit
 $sql .= $db->order($sortfield, $sortorder);
-$cpt = $user->admin?$limit:$nbtotalofrecords;
 if ($limit) {
-	$sql .= $db->plimit($cpt + 1, $offset);
+	$sql .= $db->plimit($limit + 1, $offset);
 }
 
 $resql = $db->query($sql);
@@ -1360,14 +1359,12 @@ $isAdmin = $user->admin;
 $userWarehouse = $user->fk_warehouse;
 $warehouse = new Entrepot($db);
 $id_warehouse_rebut = $warehouse->getrebut($userWarehouse);
-$totaux = $user->admin?($limit ? min($num, $limit) : $num):$cpt;
 //getProduct by entrepot
 $resultat = $product_static->getProductByEntrepot($userWarehouse,$id_warehouse_rebut);
 $totalarray = array();
 $totalarray['nbfield'] = 0;
-while ($i < $totaux) {
+while ($i <  min($num, $limit)) {
 	$obj = $db->fetch_object($resql);
-    if($isAdmin || in_array($obj->rowid,$resultat)) {
         // Multilangs
         if (getDolGlobalInt('MAIN_MULTILANGS')) {  // If multilang is enabled
             $sql = "SELECT label";
@@ -2041,7 +2038,7 @@ while ($i < $totaux) {
         }
 
         print "</tr>\n";
-    }
+
 	$i++;
 }
 

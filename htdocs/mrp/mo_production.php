@@ -152,8 +152,7 @@ if (empty($reshook)) {
 		$result = $object->setStatut($object::STATUS_INPROGRESS, 0, '', 'MRP_REOPEN');
 	}
 
-	if (($action == 'confirm_addconsumeline' && GETPOST('addconsumelinebutton') && $permissiontoadd)
-	|| ($action == 'confirm_addproduceline' && GETPOST('addproducelinebutton') && $permissiontoadd)) {
+	if (($action == 'confirm_addconsumeline' && GETPOST('addconsumelinebutton') && $permissiontoadd) || ($action == 'confirm_addproduceline' && GETPOST('addproducelinebutton') && $permissiontoadd)) {
 		$moline = new MoLine($db);
 
 		// Line to produce
@@ -209,7 +208,9 @@ if (empty($reshook)) {
 								setEventMessages($langs->trans("ErrorFieldRequiredForProduct", $langs->transnoentitiesnoconv("Warehouse"), $tmpproduct->ref), null, 'errors');
 								$error++;
 							}
-							if ($tmpproduct->status_batch && (!GETPOST('batch-'.$line->id.'-'.$i))) {
+
+                            $tmpproduct->status_batch = 0;
+							if ($tmpproduct->status_batch) {
 								$langs->load("errors");
 								setEventMessages($langs->trans("ErrorFieldRequiredForProduct", $langs->transnoentitiesnoconv("Batch"), $tmpproduct->ref), null, 'errors');
 								$error++;
@@ -217,7 +218,6 @@ if (empty($reshook)) {
 						}
 
 						$idstockmove = 0;
-                        echo $qtytoprocess."<br";
 						if (!$error && GETPOST('idwarehouse-'.$line->id.'-'.$i) > 0) {
 
 							// Record stock movementa
@@ -225,9 +225,10 @@ if (empty($reshook)) {
 							$stockmove->setOrigin($object->element, $object->id);
 							if ($qtytoprocess >= 0) {
                                 $idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehouse-'.$line->id.'-'.$i), $qtytoprocess, 0, $labelmovement, dol_now(), '', '', GETPOST('batch-'.$line->id.'-'.$i), $id_product_batch, $codemovement);
-							} else {
+
+                            } else {
                                 $idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehouse-'.$line->id.'-'.$i), $qtytoprocess * -1, 0, $labelmovement, dol_now(), '', '', GETPOST('batch-'.$line->id.'-'.$i), $id_product_batch, $codemovement);
-							}
+                            }
 							if ($idstockmove < 0) {
 								$error++;
 								setEventMessages($stockmove->error, $stockmove->errors, 'errors');
@@ -298,7 +299,7 @@ if (empty($reshook)) {
 							$stockmove->origin_type = $object->element;
 							$stockmove->origin_id = $object->id;
 
-							$idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehousetoproduce-'.$line->id.'-'.$i), $qtytoprocess, $pricetoprocess, $labelmovement, '', '', GETPOST('batchtoproduce-'.$line->id.'-'.$i), dol_now(), $id_product_batch, $codemovement);
+							$idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehousetoproduce-'.$line->id.'-'.$i), $qtytoprocess, $pricetoprocess, $labelmovement, '', '',GETPOST('batch-'.$line->id.'-'.$i), dol_now(), $id_product_batch, $codemovement);
 							if ($idstockmove < 0) {
 								$error++;
 								setEventMessages($stockmove->error, $stockmove->errors, 'errors');
@@ -335,7 +336,6 @@ if (empty($reshook)) {
 		}
 
         if($_SESSION['bomType']==1) {
-            echo "yes";
             //Ajouter Rebut Stick
             $Ids = explode(",", $_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked']);
             $qts = explode(",", $_COOKIE['qtevalues']);
@@ -414,7 +414,6 @@ if (empty($reshook)) {
 			$db->rollback();
 		} else {
 			$db->commit();
-
 			// Redirect to avoid to action done a second time if we make a back from browser
 			header("Location: ".$_SERVER["PHP_SELF"].'?id='.$object->id);
 			exit;
@@ -1138,6 +1137,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                                 if (isModEnabled('productbatch')) {
                                     print '<td class="nowraponall">';
                                     if ($tmpproduct->status_batch) {
+                                        echo "yes 1";die();
                                         $preselected = (GETPOSTISSET('batch-' . $line->id . '-' . $i) ? GETPOST('batch-' . $line->id . '-' . $i) : '');
                                         print '<input type="text" class="width75" name="batch-' . $line->id . '-' . $i . '" value="' . $preselected . '" list="batch-' . $line->id . '-' . $i . '">';
                                         print $formproduct->selectLotDataList('batch-' . $line->id . '-' . $i, 0, $line->fk_product, '', '');

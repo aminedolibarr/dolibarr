@@ -420,7 +420,7 @@ trait Boundaries
      *
      * @example
      * ```
-     * echo Carbon::parse('2018-07-25 12:45:16.334455')
+     *echo Carbon::parse('2018-07-25 12:45:16.334455')
      *   ->startOf('month')
      *   ->endOf('week', Carbon::FRIDAY);
      * ```

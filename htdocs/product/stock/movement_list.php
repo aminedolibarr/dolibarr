@@ -636,6 +636,9 @@ if ($msid > 0) {
 }
 $sql .= " AND m.fk_entrepot = e.rowid";
 $sql .= " AND e.entity IN (".getEntity('stock').")";
+if(!$user->admin){
+    $sql .= " AND e.rowid IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+}
 if (empty($conf->global->STOCK_SUPPORTS_SERVICES)) {
 	$sql .= " AND p.fk_product_type = 0";
 }
@@ -715,11 +718,10 @@ if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
 	$db->free($resql);
 }
 
-$cpt = $user->admin?$limit:$nbtotalofrecords;
 // Complete request and execute it with limit
 $sql .= $db->order($sortfield, $sortorder);
 if ($limit) {
-	$sql .= $db->plimit($cpt + 1, $offset);
+	$sql .= $db->plimit($limit + 1, $offset);
 }
 
 $resql = $db->query($sql);
@@ -1067,7 +1069,7 @@ print '<table class="tagtable nobottomiftotal liste'.($moreforfilter ? " listwit
 
 // Fields title search
 // --------------------------------------------------------------------
-if($user->admin){
+//if($user->admin){
     print '<tr class="liste_titre">';
     if (!empty($arrayfields['m.rowid']['checked'])) {
         // Ref
@@ -1199,7 +1201,7 @@ if($user->admin){
         print '</td>';
         print '</tr>'."\n";
 
-}
+//}
 
 
 
@@ -1286,13 +1288,12 @@ $totalarray = array();
 $totalarray['nbfield'] = 0;
 $warehouse_rebut = new Entrepot($db);
 $id_warehouse = $warehouse_rebut->getrebut($user->fk_warehouse);
-$totaux = $user->admin?($limit ? min($num, $limit) : $num):$cpt;
-while ($i < $totaux) {
+while ($i < min($num, $limit)) {
 	$obj = $db->fetch_object($resql);
 	if (empty($obj)) {
 		break; // Should not happen
 	}
-    if($obj->entrepot_id==$user->fk_warehouse || $obj->entrepot_id==$id_warehouse || $user->admin){
+    //if($obj->entrepot_id==$user->fk_warehouse || $obj->entrepot_id==$id_warehouse || $user->admin){
         $userstatic->id = $obj->fk_user_author;
         $userstatic->login = $obj->login;
         $userstatic->lastname = $obj->lastname;
@@ -1473,7 +1474,7 @@ while ($i < $totaux) {
         }
 
         print '</tr>'."\n";
-    }
+    //}
     $i++;
 }
 

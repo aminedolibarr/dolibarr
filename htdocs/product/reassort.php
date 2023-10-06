@@ -240,8 +240,7 @@ if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
 		$offset = 0;
 	}
 }
-$cpt = $user->admin?$limit:$nbtotalofrecords;
-$sql .= $db->plimit($cpt + 1, $offset);
+$sql .= $db->plimit($limit + 1, $offset);
 
 $resql = $db->query($sql);
 if ($resql) {
@@ -447,13 +446,12 @@ if ($resql) {
 		print_liste_field_titre('');
 	}
 	print "</tr>\n";
-    $totaux = $user->admin?min($num, $limit):$cpt;
     $warehouse_rebut = new Entrepot($db);
     $id_warehouse = $warehouse_rebut->getrebut($user->fk_warehouse);
-    while ($i < $totaux) {
+    while ($i < min($num, $limit)) {
 		$objp = $db->fetch_object($resql);
 
-        if($user->admin || $user->fk_warehouse==$objp->fk_entrepot || $id_warehouse==$objp->fk_entrepot) {
+        //if($user->admin || $user->fk_warehouse==$objp->fk_entrepot || $id_warehouse==$objp->fk_entrepot) {
             $product = new Product($db);
             $product->fetch($objp->rowid);
             $product->load_stock();
@@ -533,7 +531,7 @@ if ($resql) {
             }
 
             print "</tr>\n";
-        }
+       // }
 		$i++;
 	}
 
