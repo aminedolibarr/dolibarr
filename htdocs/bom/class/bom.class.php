@@ -413,6 +413,27 @@ class BOM extends CommonObject
         }
     }
 
+    /**
+     * 	Load warehouse rebut data
+     *
+     *  @param	int		$id      warehouse id
+     *  @return	void
+     */
+    public function getLabel($id)
+    {
+        $sql = "SELECT b.label";
+        $sql .= " FROM ".$this->db->prefix()."bom_bom as b";
+        $sql .= " WHERE b.rowid = ".((int) $id);
+
+        $result = $this->db->query($sql);
+        if ($result) {
+            $obj = $this->db->fetch_object($result);
+            return $obj->label;
+        } else {
+            dol_print_error($this->db);
+        }
+    }
+
 	/**
 	 * Load object lines in memory from the database
 	 *

@@ -7865,8 +7865,24 @@ class Form
 			'filter' => $filter,
 			'searchkey' => $searchkey
 		);
-
-		$reshook = $hookmanager->executeHooks('selectForFormsListWhere', $parameters); // Note that $action and $object may have been modified by hook
+        require_once DOL_DOCUMENT_ROOT.'/bom/class/bom.class.php';
+        global $db;
+        $bom = new Bom($db);
+        $label = $bom->getLabel($_GET['fk_bom']);
+        $labels = explode(" ",$label);
+        $new_arr=array();
+        foreach($labels as $value)
+        {
+            if($value=="de")
+            {
+                continue;
+            }
+            else
+            {
+                $new_arr[]=$value;
+            }
+        }
+        $reshook = $hookmanager->executeHooks('selectForFormsListWhere', $parameters); // Note that $action and $object may have been modified by hook
 		if (!empty($hookmanager->resPrint)) {
 			$sql .= $hookmanager->resPrint;
 		} else {
@@ -7894,6 +7910,10 @@ class Form
             if($objecttmp->table_element=="entrepot"){
                 $sql .= " AND t.warehouse_rebut is not null";
             }
+
+            if($objecttmp->table_element=="product"){
+                $sql .= " AND t.label LIKE '%$new_arr[1]%'";
+            }
             /*if(!$user->admin && $objecttmp->table_element=="bom_bom"){
                 $sql .= " AND t.fk_warehouse IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
             }*/
@@ -7912,7 +7932,6 @@ class Form
 		$sql .= $this->db->order($sortfield ? $sortfield : $fieldstoshow, "ASC");
 		//$sql.=$this->db->plimit($limit, 0);
 		//print $sql;
-
 		// Build output string
 		$resql = $this->db->query($sql);
 		if ($resql) {
