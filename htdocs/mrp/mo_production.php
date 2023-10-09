@@ -97,7 +97,6 @@ $upload_dir = $conf->mrp->multidir_output[isset($object->entity) ? $object->enti
 $permissiontoproduce = $permissiontoadd;
 $permissiontoupdatecost = $user->rights->bom->read; // User who can define cost must have knowledge of pricing
 
-
 /*
  * Actions
  */
@@ -183,21 +182,25 @@ if (empty($reshook)) {
 		header("Location: ".$_SERVER["PHP_SELF"].'?id='.$object->id);
 	}
 
+
+
 	if (in_array($action, array('confirm_consumeorproduce', 'confirm_consumeandproduceall')) && $permissiontoproduce) {
 
 		$stockmove = new MouvementStock($db);
 
 		$labelmovement = GETPOST('inventorylabel', 'alphanohtml');
 		$codemovement  = GETPOST('inventorycode', 'alphanohtml');
-
+        $Idsmanq = explode(",", $_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked']);
+        array_push($Idsmanq,$_COOKIE['productmanquante']);
 		$db->begin();
 		$pos = 0;
 		// Process line to consume
 		foreach ($object->lines as $line) {
-			if ($line->role == 'toconsume') {
+			if ($line->role == 'toconsume' && !in_array($line->fk_product,$Idsmanq)) {
 				$tmpproduct = new Product($db);
 				$tmpproduct->fetch($line->fk_product);
 				$i = 1;
+                $batch = GETPOST('batch-'.$line->id.'-'.$i);
 				while (GETPOSTISSET('qty-'.$line->id.'-'.$i)) {
 					$qtytoprocess = price2num(GETPOST('qty-'.$line->id.'-'.$i));
 					//if ($qtytoprocess != 0) {
@@ -224,10 +227,10 @@ if (empty($reshook)) {
 							$id_product_batch = 0;
 							$stockmove->setOrigin($object->element, $object->id);
 							if ($qtytoprocess >= 0) {
-                                $idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehouse-'.$line->id.'-'.$i), $qtytoprocess, 0, $labelmovement, dol_now(), '', '', GETPOST('batch-'.$line->id.'-'.$i), $id_product_batch, $codemovement);
+                                $idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehouse-'.$line->id.'-'.$i), $qtytoprocess, 0, $labelmovement, dol_now(), '', $batch, '', $id_product_batch, $codemovement);
 
                             } else {
-                                $idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehouse-'.$line->id.'-'.$i), $qtytoprocess * -1, 0, $labelmovement, dol_now(), '', '', GETPOST('batch-'.$line->id.'-'.$i), $id_product_batch, $codemovement);
+                                $idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehouse-'.$line->id.'-'.$i), $qtytoprocess * -1, 0, $labelmovement, dol_now(), '', $batch, '', $id_product_batch, $codemovement);
                             }
 							if ($idstockmove < 0) {
 								$error++;
@@ -243,7 +246,7 @@ if (empty($reshook)) {
 							$moline->fk_product = $line->fk_product;
 							$moline->fk_warehouse = GETPOST('idwarehouse-'.$line->id.'-'.$i);
 							$moline->qty = $line->qty;
-							$moline->batch = GETPOST('batch-'.$line->id.'-'.$i);
+							$moline->batch = $batch;
 							$moline->role = 'consumed';
 							$moline->fk_mrp_production = $line->id;
 							$moline->fk_stock_movement = $idstockmove == 0 ? null : $idstockmove;
@@ -268,7 +271,7 @@ if (empty($reshook)) {
 		$pos = 0;
 
 		foreach ($object->lines as $line) {
-			if ($line->role == 'toproduce') {
+			if ($line->role == 'toproduce' && !in_array($line->fk_product,$Idsmanq)) {
 				$tmpproduct = new Product($db);
 				$tmpproduct->fetch($line->fk_product);
 
@@ -340,7 +343,6 @@ if (empty($reshook)) {
             $Ids = explode(",", $_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked']);
             $qts = explode(",", $_COOKIE['qtevalues']);
             //var_dump($Ids);echo"<br>";
-            //var_dump($qts);die();
             $stockmove_rebut = new MouvementStock($db);
             $j = 0;
 
@@ -351,8 +353,7 @@ if (empty($reshook)) {
                 //$stockmove_rebut->setOrigin("", null);
                 $stockmove_rebut->origin_type = $object->element;
                 $stockmove_rebut->origin_id = $object->id;
-                $idstockmove_rebut = $stockmove_rebut->reception($user, $id, $_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, '', '', '', "", "", $codemovement);
-
+                $idstockmove_rebut = $stockmove_rebut->reception($user, $id, $_SESSION['fk_rebutwarehouse'], $qte, 0, $labelmovement, '', '', $batch, "", "", $codemovement);
                 if ($idstockmove_rebut < 0) {
                     setEventMessages($stockmove_rebut->error, $stockmove_rebut->errors, 'errors');
                 }

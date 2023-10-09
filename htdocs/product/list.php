@@ -1896,8 +1896,8 @@ while ($i <  min($num, $limit)) {
                     print img_warning($langs->trans("StockLowerThanLimit", $obj->seuil_stock_alerte)) . ' ';
                 }
                 if ($usercancreadprice) {
-                    if(!$user->admin && in_array( $product_static->id,$listarray)){
-                        print price(price2num($user->admin?$product_static->stock_reel:$product_static->reel, 'MS'), 0, $langs, 1, 0);
+                    if(!$user->admin && in_array($product_static->id,$listarray)){
+                        print price(price2num($product_static->reel, 'MS'), 0, $langs, 1, 0);
                     }else if(!$user->admin && !in_array( $product_static->id,$listarray)){
                         print '0';
                     }else{

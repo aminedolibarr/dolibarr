@@ -362,7 +362,7 @@ if ($action == 'create') {
 
 //        $_SESSION['label'] = $objectbom->label;
         $_SESSION['bomType'] = $objectbom->bomtype;
-        $_SESSION['fk_rebutwarehouse'] = $objectbom->fk_rebutwarehouse;
+        $_SESSION['fk_rebutwarehouse'] = $objectbom->getRebut($_GET['fk_bom']);
 
 
 
@@ -1073,13 +1073,13 @@ $db->close();
 <script src="./js/js.cookie.min.js"></script>
 <script>
     $(window).on("load", function () {
-
         // Cookies.remove('DELSESSIDS_6489c7a8a26573c0Unchecked', uncheckedValues)
         var bomType = '<?php echo addslashes($objectbom->bomtype); ?>'; // get the bomType from the curent bom object
         let checkedValues = [];
         let checkedValuesMnq = [];
         var existingValues =[];// checkedValues.filter(value => !checkedValuesMnq.includes(value));
         var uncheckedValues = [];
+        let product = $("#fk_product").val();
         if (bomType==1) {
 
             $('.slt_mjr').prop('checked', true);
@@ -1224,7 +1224,13 @@ $db->close();
 
             // Find all unchecked checkboxes with the class '.slt_mjr'
             $('.slt_mjr:not(:checked)').each(function() {
-                let qte = $("#qte_"+$(this).val()).val();
+                let qte = 1;
+                if( bomType === 0){
+                    qte = $("#qte_"+$(this).val()).val();
+                }else{
+                    qte = $("#qte_"+$(this).val()).text();
+                }
+
                 uncheckedValues.push($(this).val());
                 qtevalues.push(qte);
             });
@@ -1234,6 +1240,7 @@ $db->close();
             Cookies.set('DELSESSIDS_6489c7a8a26573c0Unchecked', uncheckedValues)
             localStorage.setItem("DELSESSIDS_6489c7a8a26573c0Unchecked", uncheckedValues);
             Cookies.set('qtevalues', qtevalues)
+            Cookies.set('productmanquante', product)
             localStorage.setItem("qtevalues", qtevalues);
 
         });
