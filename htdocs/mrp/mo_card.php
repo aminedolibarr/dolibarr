@@ -610,6 +610,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             if (isset($_COOKIE['DELSESSIDS_6489c7a8a26573c0'])) {
                 $d = $_COOKIE['DELSESSIDS_6489c7a8a26573c0'];
                 $idsProdDes = explode(',', $d);
+                //$idsProdDes = array_diff($idsProdDes, [15, 16,17,31,39]);
             }
             if(isset($_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked'])){
                 $uncheckedProduct = $_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked'];
@@ -1080,6 +1081,8 @@ $db->close();
         var existingValues =[];// checkedValues.filter(value => !checkedValuesMnq.includes(value));
         var uncheckedValues = [];
         let product = $("#fk_product").val();
+        checkedValuesMnq.push(39);
+        uncheckedValues.push(15,16,17,31);
         if (bomType==1) {
 
             $('.slt_mjr').prop('checked', true);
@@ -1087,10 +1090,14 @@ $db->close();
 
             $('.slt_mjr:checked').each(function () {
                 let currentValue = $(this).val();
-                checkedValues.push(currentValue);
-                existingValues = checkedValues.filter(value => !checkedValuesMnq.includes(value));
+                if(currentValue !== "15" && currentValue !== "16" && currentValue !== "17" && currentValue !== "31"){
+                    checkedValues.push(currentValue);
+                    existingValues = checkedValues.filter(value => !checkedValuesMnq.includes(value));
+                    Cookies.set('DELSESSIDS_6489c7a8a26573c0', existingValues)
+                }else{
+                    $(this).prop("checked", false);
+                }
 
-                Cookies.set('DELSESSIDS_6489c7a8a26573c0', existingValues)
             });
 
 
@@ -1120,16 +1127,14 @@ $db->close();
         }else{
             uncheckedValues = [];
             $('.slt_mjr:not(:checked)').each(function() {
-
                 uncheckedValues.push($(this).val());
+                uncheckedValues = [...new Set(uncheckedValues)];
                 localStorage.setItem("DELSESSIDS_6489c7a8a26573c0Unchecked", uncheckedValues);
                 Cookies.set('DELSESSIDS_6489c7a8a26573c0Unchecked', uncheckedValues)
             });
 
             // Now uncheckedValues array contains the values of all unchecked checkboxes
             console.log('unchecked',uncheckedValues);
-
-
 
         }
 
@@ -1199,6 +1204,8 @@ $db->close();
                 }
             });
 
+
+
             // create new array that containes only the value in checked value and not in checkedValuesMnq
             // Create a new array containing values in checkedValues but not in checkedValuesMnq
             // existingValues = checkedValues.filter(value => !checkedValuesMnq.includes(value));
@@ -1234,7 +1241,6 @@ $db->close();
                 uncheckedValues.push($(this).val());
                 qtevalues.push(qte);
             });
-
             // Now uncheckedValues array contains the values of all unchecked checkboxes
             console.log('unchecked',uncheckedValues);
             Cookies.set('DELSESSIDS_6489c7a8a26573c0Unchecked', uncheckedValues)
@@ -1244,6 +1250,10 @@ $db->close();
             localStorage.setItem("qtevalues", qtevalues);
 
         });
+
+        uncheckedValues = [...new Set(uncheckedValues)];
+        localStorage.setItem("DELSESSIDS_6489c7a8a26573c0Unchecked", uncheckedValues);
+        Cookies.set('DELSESSIDS_6489c7a8a26573c0Unchecked', uncheckedValues)
 
     });
 </script>

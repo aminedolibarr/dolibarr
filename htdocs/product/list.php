@@ -414,9 +414,7 @@ if ($search_type != '' && $search_type != '-1') {
 $sql = 'SELECT p.rowid, p.ref, p.label, p.fk_product_type, p.barcode, p.price, p.tva_tx, p.price_ttc, p.price_base_type, p.entity,';
 $sql .= ' p.fk_product_type, p.duration, p.finished, p.tosell, p.tobuy, p.seuil_stock_alerte, p.desiredstock,';
 $sql .= ' p.tobatch, ';
-if(!$user->admin){
-    $sql .= 'st.reel,';
-}
+
 if (isModEnabled('workstation')) {
 	$sql .= ' p.fk_default_workstation, ws.status as status_workstation, ws.ref as ref_workstation, ';
 }
@@ -448,9 +446,7 @@ $sql .= $hookmanager->resPrint;
 $sqlfields = $sql; // $sql fields to remove for count total
 
 $sql .= ' FROM '.MAIN_DB_PREFIX.'product as p';
-if(!$user->admin){
-    $sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'product_stock as st ON p.rowid=st.fk_product';
-}
+
 if (isModEnabled('workstation')) {
 	$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "workstation_workstation ws ON (p.fk_default_workstation = ws.rowid)";
 }
@@ -597,9 +593,7 @@ $sql .= $hookmanager->resPrint;
 $sql .= " GROUP BY p.rowid, p.ref, p.label, p.barcode, p.price, p.tva_tx, p.price_ttc, p.price_base_type,";
 $sql .= " p.fk_product_type, p.duration, p.finished, p.tosell, p.tobuy, p.seuil_stock_alerte, p.desiredstock,";
 $sql .= ' p.datec, p.tms, p.entity, p.tobatch, p.pmp, p.cost_price, p.stock,';
-if(!$user->admin){
-    $sql .= 'st.reel,';
-}
+
 if (empty($conf->global->MAIN_PRODUCT_PERENTITY_SHARED)) {
 	$sql .= " p.accountancy_code_sell, p.accountancy_code_sell_intra, p.accountancy_code_sell_export, p.accountancy_code_buy, p.accountancy_code_buy_intra, p.accountancy_code_buy_export,";
 } else {
@@ -1431,7 +1425,8 @@ while ($i <  min($num, $limit)) {
             $product_static->surface = $obj->surface;
             $product_static->surface_units = $obj->surface_units;
             if(!$user->admin){
-                $product_static->reel = $obj->reel;
+                $prod = new Product($db);
+                $product_static->reel = $prod->getStock($user->fk_warehouse,$product_static->id);
             }
             if (!empty($conf->global->PRODUCT_USE_UNITS)) {
                 $product_static->fk_unit = $obj->fk_unit;
@@ -1897,7 +1892,7 @@ while ($i <  min($num, $limit)) {
                 }
                 if ($usercancreadprice) {
                     if(!$user->admin && in_array($product_static->id,$listarray)){
-                        print price(price2num($product_static->reel, 'MS'), 0, $langs, 1, 0);
+                        print price(price2num($product_static->reel?$product_static->reel:'0', 'MS'), 0, $langs, 1, 0);
                     }else if(!$user->admin && !in_array( $product_static->id,$listarray)){
                         print '0';
                     }else{

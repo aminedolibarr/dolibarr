@@ -106,6 +106,10 @@ foreach ($object->fields as $key => $val) {
 ?>
 <!-- END PHP TEMPLATE commonfields_add.tpl.php -->
 <script>
+    jQuery(document).ready(function(){
+        $('#fk_warehouse option:eq(0)').remove();
+
+    })
     jQuery(document).on('.valuefieldcreate select2:open', () => {
         var isAdmin = "<?php echo $isAdmin; ?>"
         var userWarehouse = "<?php echo $userWarehouse; ?>"
@@ -125,12 +129,12 @@ foreach ($object->fields as $key => $val) {
                         }
                     });
                 }
-            });*/
+            });
             $('#fk_warehouse option').each(function() {
                 if ( $(this).val() !== userWarehouse) {
                     $(this).remove();
                 }
-            });
+            });*/
             $('#fk_default_warehouse option').each(function() {
                 if ( $(this).val() !== userWarehouse) {
                     $(this).remove();

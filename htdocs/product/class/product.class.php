@@ -6301,6 +6301,24 @@ class Product extends CommonObject
         return $items;
     }
 
+    /**
+     * 	Load warehouse rebut data
+     *
+     *  @param	int		$id1      warehouse id
+     *  @param	int		$id2      warehouse_rebut id
+     *  @return	int
+     */
+    public function getStock(int $fk_warehouse, int $id){
+        $sql = "SELECT p.reel";
+        $sql .= " FROM ".$this->db->prefix()."product_stock as p";
+        $sql .= " WHERE p.fk_entrepot='$fk_warehouse' AND p.fk_product='$id'";
+
+        $result = $this->db->query($sql);
+        $obj = $this->db->fetch_object($result);
+
+        return $obj->reel;
+    }
+
 
 	/**
 	 * Return the duration in Hours of a service base on duration fields
@@ -6337,6 +6355,8 @@ class Product extends CommonObject
 
 		return $prodDurationHours;
 	}
+
+
 }
 
 /**

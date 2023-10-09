@@ -7857,7 +7857,6 @@ class Form
 				}
 			}
 		}
-
 		// Add where from hooks
 		$parameters = array(
 			'object' => $objecttmp,
@@ -7909,6 +7908,10 @@ class Form
 			}
             if($objecttmp->table_element=="entrepot"){
                 $sql .= " AND t.warehouse_rebut is not null";
+            }
+
+            if($objecttmp->table_element=="entrepot" && !$user->admin){
+                $sql .= " AND t.rowid IN (".$user->fk_warehouse.")";
             }
 
             if($objecttmp->table_element=="product"){
