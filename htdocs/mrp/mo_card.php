@@ -1090,7 +1090,7 @@ $db->close();
 
             $('.slt_mjr:checked').each(function () {
                 let currentValue = $(this).val();
-                if(currentValue !== "15" && currentValue !== "16" && currentValue !== "17" && currentValue !== "31"){
+                if(currentValue !== "15" && currentValue !== "16" && currentValue !== "17" && currentValue !== "31" && currentValue !== "39"){
                     checkedValues.push(currentValue);
                     existingValues = checkedValues.filter(value => !checkedValuesMnq.includes(value));
                     Cookies.set('DELSESSIDS_6489c7a8a26573c0', existingValues)
