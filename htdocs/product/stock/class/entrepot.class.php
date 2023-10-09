@@ -519,6 +519,34 @@ class Entrepot extends CommonObject
 		}
 	}
 
+    /**
+     *	Load warehouse data²
+     *
+     *	@param		int		$id     Warehouse id
+     *	@return		Array			>0 if OK, <0 if KO
+     */
+    function getAllRecordbyEntrepot($id){
+        $sql = "SELECT p.rowid";
+        $sql .= " FROM " . MAIN_DB_PREFIX . "product_stock as ps," . MAIN_DB_PREFIX . "product as p";
+        $sql .= " WHERE p.rowid = ps.fk_product  AND ps.reel <> 0 AND ps.fk_entrepot = ".$id;
+        $result = $this->db->query($sql);
+        $arrays = array();
+        if ($result) {
+            if ($this->db->num_rows($result)) {
+                $i = 0;
+                $num_rows = $this->db->num_rows($result);
+                while ($i < $num_rows) {
+                    $obj = $this->db->fetch_object($result);
+                    array_push($arrays, $obj->rowid);
+                    $i++;
+                }
+            }
+        } else {
+            dol_print_error($this->db);
+        }
+        return $arrays;
+    }
+
 
 	/**
 	 * 	Load warehouse info data

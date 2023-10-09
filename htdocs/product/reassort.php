@@ -179,6 +179,9 @@ if (dol_strlen($type)) {
 		$sql .= " AND p.fk_product_type <> '1'";
 	}
 }
+if(!$user->admin){
+    $sql .= " AND s.fk_entrepot IN (".$user->fk_warehouse.",".$user->warehouse_rebut.")";
+}
 if ($sref) {
 	$sql .= natural_search('p.ref', $sref);
 }

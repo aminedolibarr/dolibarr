@@ -1370,6 +1370,10 @@ $warehouse = new Entrepot($db);
 $id_warehouse_rebut = $warehouse->getrebut($userWarehouse);
 //getProduct by entrepot
 $resultat = $product_static->getProductByEntrepot($userWarehouse,$id_warehouse_rebut);
+//
+$stock = new Entrepot($db);
+$listarray=$stock->getAllRecordbyEntrepot($user->fk_warehouse);
+
 $totalarray = array();
 $totalarray['nbfield'] = 0;
 while ($i <  min($num, $limit)) {
@@ -1892,7 +1896,13 @@ while ($i <  min($num, $limit)) {
                     print img_warning($langs->trans("StockLowerThanLimit", $obj->seuil_stock_alerte)) . ' ';
                 }
                 if ($usercancreadprice) {
-                    print price(price2num($user->admin?$product_static->stock_reel:$product_static->reel, 'MS'), 0, $langs, 1, 0);
+                    if(!$user->admin && in_array( $product_static->id,$listarray)){
+                        print price(price2num($user->admin?$product_static->stock_reel:$product_static->reel, 'MS'), 0, $langs, 1, 0);
+                    }else if(!$user->admin && !in_array( $product_static->id,$listarray)){
+                        print '0';
+                    }else{
+                        print price(price2num($product_static->stock_reel, 'MS'), 0, $langs, 1, 0);
+                    }
                 }
             }
             print '</td>';

@@ -730,7 +730,7 @@ if ($action == 'create') {
 			$sql .= $db->order($sortfield, $sortorder);
 
 			dol_syslog('List products', LOG_DEBUG);
-            
+
 			$resql = $db->query($sql);
 			if ($resql) {
 				$num = $db->num_rows($resql);
