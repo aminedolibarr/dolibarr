@@ -873,135 +873,138 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$warehousestatic->label = $objp->warehouse_ref;
 		$warehousestatic->lieu = $objp->lieu;
 
-		if (!empty($objp->fk_origin)) {
-			$origin = $objectlist->get_origin($objp->fk_origin, $objp->origintype);
-		} else {
-			$origin = '';
-		}
 
-		print '<tr class="oddeven">';
-		// Id movement
-		if (!empty($arrayfields['m.rowid']['checked'])) {
-			// This is primary not movement id
-			print '<td>'.dol_escape_htmltag($objp->mid).'</td>';
-		}
-		if (!empty($arrayfields['m.datem']['checked'])) {
-			// Date
-			print '<td>'.dol_print_date($db->jdate($objp->datem), 'dayhour').'</td>';
-		}
-		if (!empty($arrayfields['p.ref']['checked'])) {
-			// Product ref
-			print '<td class="nowraponall">';
-			print $productstatic->getNomUrl(1, 'stock', 16);
-			print "</td>\n";
-		}
-		if (!empty($arrayfields['p.label']['checked'])) {
-			// Product label
-			print '<td class="tdoverflowmax150" title="'.dol_escape_htmltag($productstatic->label).'">';
-			print $productstatic->label;
-			print "</td>\n";
-		}
-		if (!empty($arrayfields['m.batch']['checked'])) {
-			print '<td class="center nowraponall">';
-			if ($productlot->id > 0) {
-				print $productlot->getNomUrl(1);
-			} else {
-				print dol_escape_htmltag($productlot->batch); // the id may not be defined if movement was entered when lot was not saved or if lot was removed after movement.
-			}
-			print '</td>';
-		}
-		if (!empty($arrayfields['pl.eatby']['checked'])) {
-			print '<td class="center">'.dol_print_date($objp->eatby, 'day').'</td>';
-		}
-		if (!empty($arrayfields['pl.sellby']['checked'])) {
-			print '<td class="center">'.dol_print_date($objp->sellby, 'day').'</td>';
-		}
-		// Warehouse
-		if (!empty($arrayfields['e.ref']['checked'])) {
-			print '<td>';
-			print $warehousestatic->getNomUrl(1);
-			print "</td>\n";
-		}
-		// Author
-		if (!empty($arrayfields['m.fk_user_author']['checked'])) {
-			print '<td class="tdoverflowmax100">';
-			print $userstatic->getNomUrl(-1);
-			print "</td>\n";
-		}
-		// Inventory code
-		if (!empty($arrayfields['m.inventorycode']['checked'])) {
-			print '<td class="tdoverflowmax150" title="'.dol_escape_htmltag($objp->inventorycode).'">';
-			//print '<a href="' . DOL_URL_ROOT . '/product/stock/movement_card.php' . '?id=' . $objp->entrepot_id . '&amp;search_inventorycode=' . $objp->inventorycode . '&amp;search_type_mouvement=' . $objp->type_mouvement . '">';
-			print dol_escape_htmltag($objp->inventorycode);
-			//print '</a>';
-			print '</td>';
-		}
-		// Label of movement
-		if (!empty($arrayfields['m.label']['checked'])) {
-			print '<td class="tdoverflowmax300" title="'.dol_escape_htmltag($objp->label).'">'.dol_escape_htmltag($objp->label).'</td>';
-		}
-		// Type of movement
-		if (!empty($arrayfields['m.type_mouvement']['checked'])) {
-			switch ($objp->type_mouvement) {
-				case "0":
-					print '<td class="center">'.$langs->trans('StockIncreaseAfterCorrectTransfer').'</td>';
-					break;
-				case "1":
-					print '<td class="center">'.$langs->trans('StockDecreaseAfterCorrectTransfer').'</td>';
-					break;
-				case "2":
-					print '<td class="center">'.$langs->trans('StockDecrease').'</td>';
-					break;
-				case "3":
-					print '<td class="center">'.$langs->trans('StockIncrease').'</td>';
-					break;
-			}
-		}
-		if (!empty($arrayfields['origin']['checked'])) {
-			// Origin of movement
-			print '<td class="nowraponall">'.$origin.'</td>';
-		}
-		if (!empty($arrayfields['m.fk_projet']['checked'])) {
-			// fk_project
-			print '<td>';
-			if ($objp->fk_project != 0) {
-				print $movement->get_origin($objp->fk_project, 'project');
-			}
-			print '</td>';
-		}
-		if (!empty($arrayfields['m.value']['checked'])) {
-			// Qty
-			print '<td class="right">';
-			if ($objp->qty >0) {
-				print '<span class="stockmovemententry">+'.$objp->qty.'</span>';
-			} else {
-				print '<span class="stockmovementexit">'.$objp->qty.'<span>';
-			}
-			print '</td>';
-		}
-		if (!empty($arrayfields['m.price']['checked'])) {
-			// Price
-			print '<td class="right">';
-			if ($objp->price != 0) {
-				print '<span class="opacitymedium">'.price($objp->price).'</span>';
-			}
-			print '</td>';
-		}
-		// Action column
-		print '<td class="nowrap center">';
-		if ($massactionbutton || $massaction) { // If we are in select mode (massactionbutton defined) or if we have already selected and sent an action ($massaction) defined
-			$selected = 0;
-			if (in_array($obj->rowid, $arrayofselected)) {
-				$selected = 1;
-			}
-			print '<input id="cb'.$obj->rowid.'" class="flat checkforselect" type="checkbox" name="toselect[]" value="'.$obj->rowid.'"'.($selected ? ' checked="checked"' : '').'>';
-		}
-		print '</td>';
-		if (!$i) {
-			$totalarray['nbfield']++;
-		}
+        if (strpos($warehousestatic->label, 'REBUT') === false) {
+            if (!empty($objp->fk_origin)) {
+                $origin = $objectlist->get_origin($objp->fk_origin, $objp->origintype);
+            } else {
+                $origin = '';
+            }
 
-		print "</tr>\n";
+            print '<tr class="oddeven">';
+            // Id movement
+            if (!empty($arrayfields['m.rowid']['checked'])) {
+                // This is primary not movement id
+                print '<td>' . dol_escape_htmltag($objp->mid) . '</td>';
+            }
+            if (!empty($arrayfields['m.datem']['checked'])) {
+                // Date
+                print '<td>' . dol_print_date($db->jdate($objp->datem), 'dayhour') . '</td>';
+            }
+            if (!empty($arrayfields['p.ref']['checked'])) {
+                // Product ref
+                print '<td class="nowraponall">';
+                print $productstatic->getNomUrl(1, 'stock', 16);
+                print "</td>\n";
+            }
+            if (!empty($arrayfields['p.label']['checked'])) {
+                // Product label
+                print '<td class="tdoverflowmax150" title="' . dol_escape_htmltag($productstatic->label) . '">';
+                print $productstatic->label;
+                print "</td>\n";
+            }
+            if (!empty($arrayfields['m.batch']['checked'])) {
+                print '<td class="center nowraponall">';
+                if ($productlot->id > 0) {
+                    print $productlot->getNomUrl(1);
+                } else {
+                    print dol_escape_htmltag($productlot->batch); // the id may not be defined if movement was entered when lot was not saved or if lot was removed after movement.
+                }
+                print '</td>';
+            }
+            if (!empty($arrayfields['pl.eatby']['checked'])) {
+                print '<td class="center">' . dol_print_date($objp->eatby, 'day') . '</td>';
+            }
+            if (!empty($arrayfields['pl.sellby']['checked'])) {
+                print '<td class="center">' . dol_print_date($objp->sellby, 'day') . '</td>';
+            }
+            // Warehouse
+            if (!empty($arrayfields['e.ref']['checked'])) {
+                print '<td>';
+                print $warehousestatic->getNomUrl(1);
+                print "</td>\n";
+            }
+            // Author
+            if (!empty($arrayfields['m.fk_user_author']['checked'])) {
+                print '<td class="tdoverflowmax100">';
+                print $userstatic->getNomUrl(-1);
+                print "</td>\n";
+            }
+            // Inventory code
+            if (!empty($arrayfields['m.inventorycode']['checked'])) {
+                print '<td class="tdoverflowmax150" title="' . dol_escape_htmltag($objp->inventorycode) . '">';
+                //print '<a href="' . DOL_URL_ROOT . '/product/stock/movement_card.php' . '?id=' . $objp->entrepot_id . '&amp;search_inventorycode=' . $objp->inventorycode . '&amp;search_type_mouvement=' . $objp->type_mouvement . '">';
+                print dol_escape_htmltag($objp->inventorycode);
+                //print '</a>';
+                print '</td>';
+            }
+            // Label of movement
+            if (!empty($arrayfields['m.label']['checked'])) {
+                print '<td class="tdoverflowmax300" title="' . dol_escape_htmltag($objp->label) . '">' . dol_escape_htmltag($objp->label) . '</td>';
+            }
+            // Type of movement
+            if (!empty($arrayfields['m.type_mouvement']['checked'])) {
+                switch ($objp->type_mouvement) {
+                    case "0":
+                        print '<td class="center">' . $langs->trans('StockIncreaseAfterCorrectTransfer') . '</td>';
+                        break;
+                    case "1":
+                        print '<td class="center">' . $langs->trans('StockDecreaseAfterCorrectTransfer') . '</td>';
+                        break;
+                    case "2":
+                        print '<td class="center">' . $langs->trans('StockDecrease') . '</td>';
+                        break;
+                    case "3":
+                        print '<td class="center">' . $langs->trans('StockIncrease') . '</td>';
+                        break;
+                }
+            }
+            if (!empty($arrayfields['origin']['checked'])) {
+                // Origin of movement
+                print '<td class="nowraponall">' . $origin . '</td>';
+            }
+            if (!empty($arrayfields['m.fk_projet']['checked'])) {
+                // fk_project
+                print '<td>';
+                if ($objp->fk_project != 0) {
+                    print $movement->get_origin($objp->fk_project, 'project');
+                }
+                print '</td>';
+            }
+            if (!empty($arrayfields['m.value']['checked'])) {
+                // Qty
+                print '<td class="right">';
+                if ($objp->qty > 0) {
+                    print '<span class="stockmovemententry">+' . $objp->qty . '</span>';
+                } else {
+                    print '<span class="stockmovementexit">' . $objp->qty . '<span>';
+                }
+                print '</td>';
+            }
+            if (!empty($arrayfields['m.price']['checked'])) {
+                // Price
+                print '<td class="right">';
+                if ($objp->price != 0) {
+                    print '<span class="opacitymedium">' . price($objp->price) . '</span>';
+                }
+                print '</td>';
+            }
+            // Action column
+            print '<td class="nowrap center">';
+            if ($massactionbutton || $massaction) { // If we are in select mode (massactionbutton defined) or if we have already selected and sent an action ($massaction) defined
+                $selected = 0;
+                if (in_array($obj->rowid, $arrayofselected)) {
+                    $selected = 1;
+                }
+                print '<input id="cb' . $obj->rowid . '" class="flat checkforselect" type="checkbox" name="toselect[]" value="' . $obj->rowid . '"' . ($selected ? ' checked="checked"' : '') . '>';
+            }
+            print '</td>';
+            if (!$i) {
+                $totalarray['nbfield']++;
+            }
+
+            print "</tr>\n";
+        }
 		$i++;
 	}
 	if (empty($num)) {
