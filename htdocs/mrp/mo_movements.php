@@ -863,7 +863,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$productstatic->entity = $objp->entity;
 		$productstatic->status_batch = $objp->tobatch;
 
-		$productlot->id = $objp->lotid;
+		$productlot->id = $objp->lotid;//
 		$productlot->batch = $objp->batch;
 		$productlot->eatby = $objp->eatby;
 		$productlot->sellby = $objp->sellby;
