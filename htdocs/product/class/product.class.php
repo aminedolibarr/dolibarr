@@ -6301,6 +6301,7 @@ class Product extends CommonObject
         return $items;
     }
 
+
     /**
      * 	Load warehouse rebut data
      *

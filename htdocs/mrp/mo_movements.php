@@ -874,6 +874,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$warehousestatic->lieu = $objp->lieu;
 
 
+
         if (strpos($warehousestatic->label, 'REBUT') === false) {
             if (!empty($objp->fk_origin)) {
                 $origin = $objectlist->get_origin($objp->fk_origin, $objp->origintype);
