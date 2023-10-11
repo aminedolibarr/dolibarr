@@ -1227,7 +1227,7 @@ $db->close();
                 if( bomType === 0){
                     qte = $("#qte_"+$(this).val()).val();
                 }else{
-                    qte = $("#qte_"+$(this).val()).text(); //
+                    qte = $("#qte_"+$(this).val()).text();
                 }
 
                 uncheckedValues.push($(this).val());

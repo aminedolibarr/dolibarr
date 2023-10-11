@@ -6292,7 +6292,7 @@ class Product extends CommonObject
         if ($result) {
             while ($i < $this->db->num_rows($result)) {
                 $obj = $this->db->fetch_object($result);
-                array_push($items, $obj->fk_product);//
+                array_push($items, $obj->fk_product);
                 $i++;
             }
         } else {

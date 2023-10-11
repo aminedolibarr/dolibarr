@@ -424,7 +424,10 @@ class MouvementStock extends CommonObject
         if (!is_array($Idsmanq)) {
             $Idsmanq = array($Idsmanq); // Convert to array
         }
-        array_push($Idsmanq,$_COOKIE['productmanquante']);
+
+        if (($key = array_search("1", $Idsmanq)) !== false) {
+            unset($Idsmanq[$key]);
+        }
 
 		if ($movestock && !in_array($this->product_id,$Idsmanq)) {	// Change stock for current product, change for subproduct is done after
 			// Set $origin_type, origin_id and fk_project
