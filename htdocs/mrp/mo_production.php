@@ -296,6 +296,7 @@ if (empty($reshook)) {
                                 }
                             }
 
+
                             $idstockmove = 0;
                             if (!$error && GETPOST('idwarehousetoproduce-' . $line->id . '-' . $i) > 0) {
                                 // Record stock movement

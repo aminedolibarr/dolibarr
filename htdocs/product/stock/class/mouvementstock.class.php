@@ -420,6 +420,7 @@ class MouvementStock extends CommonObject
 			}
 		}*/
 
+
         $Idsmanq = explode(",", $_COOKIE['DELSESSIDS_6489c7a8a26573c0Unchecked']);
         if (!is_array($Idsmanq)) {
             $Idsmanq = array($Idsmanq); // Convert to array
