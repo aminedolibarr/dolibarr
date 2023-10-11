@@ -303,7 +303,7 @@ if (empty($reshook)) {
                                 $stockmove->origin_type = $object->element;
                                 $stockmove->origin_id = $object->id;
 
-                                $idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehousetoproduce-' . $line->id . '-' . $i), $qtytoprocess, $pricetoprocess, $labelmovement, '', '', GETPOST('batch-' . $line->id . '-' . $i), dol_now(), $id_product_batch, $codemovement);
+                                $idstockmove = $stockmove->reception($user, $line->fk_product, GETPOST('idwarehousetoproduce-' . $line->id . '-' . $i), $qtytoprocess, $pricetoprocess, $labelmovement, '', '', GETPOST('batchtoproduce-' . $line->id . '-' . $i), dol_now(), $id_product_batch, $codemovement);
 
                                 if ($idstockmove < 0) {
                                     $error++;
