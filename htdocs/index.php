@@ -843,3 +843,13 @@ function getWeatherStatus($totallate)
 
 	return $weather;
 }
+
+?>
+
+<script>
+    jQuery(document).ready(function($) {
+        $('.fiche').contents().filter(function(){
+            return this.nodeType != 1;
+        }).remove();
+    })
+</script>
